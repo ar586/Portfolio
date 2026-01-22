@@ -29,17 +29,31 @@ async def main():
     
     for repo in repos:
         repo_name = repo["name"]
-        print(f" - Processing {repo_name}...")
+        default_branch = repo.get("default_branch", "main")
+        print(f" - Processing {repo_name} (branch: {default_branch})...")
         
+        # Fetch README
         readme_content = await repo_loader.get_repo_readme(username, repo_name)
         
-        if readme_content:
+        # Fetch File Structure
+        structure = await repo_loader.get_repo_structure(username, repo_name, branch=default_branch)
+        structure_str = "\n".join(f"- {path}" for path in structure)
+        
+        if readme_content or structure:
             file_path = os.path.join(data_dir, f"{repo_name}.md")
             with open(file_path, "w", encoding="utf-8") as f:
-                f.write(readme_content)
-            print(f"   Saved README to {file_path}")
+                if readme_content:
+                    f.write(readme_content)
+                    f.write("\n\n")
+                
+                if structure:
+                    f.write("# Repository File Structure\n\n")
+                    f.write(structure_str)
+                    f.write("\n")
+            
+            print(f"   Saved data to {file_path}")
         else:
-            print("   No README found.")
+            print("   No data found.")
 
 if __name__ == "__main__":
     asyncio.run(main())

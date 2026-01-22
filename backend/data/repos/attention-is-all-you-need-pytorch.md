@@ -118,3 +118,23 @@ hello transformer transformer
 
 
 
+
+
+# Repository File Structure
+
+- README.md
+- model
+- model/attention.py
+- model/decoder.py
+- model/embedding.py
+- model/encoder.py
+- model/positional_encoding.py
+- model/transformer.py
+- requirements.txt
+- training
+- training/__pycache__
+- training/__pycache__/dataset.cpython-313.pyc
+- training/__pycache__/utils.cpython-313.pyc
+- training/dataset.py
+- training/train.py
+- training/utils.py

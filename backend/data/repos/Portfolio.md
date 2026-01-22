@@ -1,0 +1,34 @@
+# Repository File Structure
+
+- .gitignore
+- backend
+- backend/app
+- backend/app/__init__.py
+- backend/app/api
+- backend/app/api/__init__.py
+- backend/app/api/chat.py
+- backend/app/api/github_stats.py
+- backend/app/api/leetcode_stats.py
+- backend/app/api/profile.py
+- backend/app/github
+- backend/app/github/__init__.py
+- backend/app/github/repo_loader.py
+- backend/app/github/stats_fetcher.py
+- backend/app/leetcode
+- backend/app/leetcode/__init__.py
+- backend/app/leetcode/graphql_client.py
+- backend/app/main.py
+- backend/app/personal
+- backend/app/personal/__init__.py
+- backend/app/personal/loader.py
+- backend/app/vectorstore
+- backend/app/vectorstore/indexer.py
+- backend/data
+- backend/data/bio.md
+- backend/data/journey.md
+- backend/data/repos
+- backend/data/repos/attention-is-all-you-need-pytorch.md
+- backend/data/resume.md
+- backend/fetch_github_data.py
+- backend/requirements.txt
+- backend/verify_setup.py
