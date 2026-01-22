@@ -26,4 +26,12 @@ class PersonalKBLoader:
     def get_all_docs(self) -> List[str]:
         if not os.path.exists(self.data_dir):
             return []
-        return [f for f in os.listdir(self.data_dir) if f.endswith(".md")]
+        
+        docs = []
+        for root, _, files in os.walk(self.data_dir):
+            for file in files:
+                if file.endswith(".md"):
+                    # relative path from data_dir
+                    rel_path = os.path.relpath(os.path.join(root, file), self.data_dir)
+                    docs.append(rel_path)
+        return docs
