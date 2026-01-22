@@ -39,3 +39,44 @@ def get_database():
     if db_instance.client is None:
         db_instance.connect()
     return db_instance.get_db()
+
+# --- Chat History Helpers ---
+from datetime import datetime
+
+async def get_chat_history(db, session_id: str, limit: int = 10) -> list:
+    """Returns a list of message dicts: [{'role': 'user', 'content': '...'}, ...]"""
+    if not session_id:
+        return []
+    
+    collection = db["chat_history"]
+    doc = await collection.find_one({"session_id": session_id})
+    
+    if not doc or "messages" not in doc:
+        return []
+        
+    # Return last N messages
+    return doc["messages"][-limit:]
+
+async def save_chat_message(db, session_id: str, user_msg: str, ai_msg: str):
+    if not session_id:
+        return
+        
+    collection = db["chat_history"]
+    
+    # Update or insert
+    await collection.update_one(
+        {"session_id": session_id},
+        {
+            "$push": {
+                "messages": {
+                    "$each": [
+                        {"role": "user", "content": user_msg, "timestamp": datetime.now()},
+                        {"role": "assistant", "content": ai_msg, "timestamp": datetime.now()}
+                    ]
+                }
+            },
+            "$setOnInsert": {"created_at": datetime.now()},
+            "$set": {"updated_at": datetime.now()}
+        },
+        upsert=True
+    )
