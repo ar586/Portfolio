@@ -1,0 +1,372 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Trophy, ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
+import api from '@/lib/api';
+
+interface LeetCodeStats {
+    total_solved: number;
+    easy_solved: number;
+    medium_solved: number;
+    hard_solved: number;
+    ranking: number;
+}
+
+interface RecentSubmission {
+    id: string;
+    title: string;
+    titleSlug: string;
+    timestamp: string;
+}
+
+export default function LeetCode() {
+    const [stats, setStats] = useState<LeetCodeStats | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [expanded, setExpanded] = useState(false);
+    const [heatmap, setHeatmap] = useState<Record<string, number> | null>(null);
+    const [recentSolves, setRecentSolves] = useState<RecentSubmission[]>([]);
+    const [detailsLoading, setDetailsLoading] = useState(false);
+
+    useEffect(() => {
+        api.getLeetCodeStats()
+            .then(res => {
+                setStats(res.data);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error('Failed to fetch LeetCode stats:', err);
+                setLoading(false);
+            });
+    }, []);
+
+    const toggleExpand = () => {
+        if (!expanded && !heatmap) {
+            setDetailsLoading(true);
+            Promise.all([
+                api.getLeetCodeHeatmap(),
+                api.getLeetCodeRecent()
+            ])
+                .then(([heatmapRes, recentRes]) => {
+                    // Backend returns { data: { submissionCalendar: "..." }, ... }
+                    // So we need heatmapRes.data.data.submissionCalendar
+                    let calendarData = heatmapRes.data?.data?.submissionCalendar || heatmapRes.data?.submissionCalendar;
+
+                    if (typeof calendarData === 'string') {
+                        try {
+                            calendarData = JSON.parse(calendarData);
+                        } catch (e) {
+                            console.error("Failed to parse submissionCalendar", e);
+                            calendarData = {};
+                        }
+                    }
+                    setHeatmap(calendarData);
+                    setRecentSolves(recentRes.data.recentAcSubmissionList || []);
+                    setDetailsLoading(false);
+                })
+                .catch(err => {
+                    console.error('Failed to fetch details:', err);
+                    setDetailsLoading(false);
+                });
+        }
+        setExpanded(!expanded);
+    };
+
+    const getPercentage = (solved: number, total: number = 3000) => {
+        return (solved / total) * 100;
+    };
+
+    // Helper to render heatmap grid (Last 12 months, similar to LeetCode/GitHub)
+    const renderHeatmap = () => {
+        if (!heatmap) return null;
+
+        // Pre-process heatmap data into a date map
+        // Moved inside to ensure it has access to heatmap state and re-runs on change
+        const dateSubmissions: Record<string, number> = {};
+        Object.entries(heatmap).forEach(([ts, cnt]) => {
+            const date = new Date(parseInt(ts) * 1000);
+            const dateKey = date.toISOString().split('T')[0];
+            dateSubmissions[dateKey] = (dateSubmissions[dateKey] || 0) + cnt;
+        });
+
+        // LeetCode colors - brighter for visibility
+        const getLevelColor = (count: number) => {
+            if (count === 0) return 'bg-white/5'; // Empty
+            if (count <= 2) return 'bg-green-700'; // Light activity
+            if (count <= 5) return 'bg-green-500'; // Medium
+            return 'bg-green-300'; // High activity
+        };
+
+        const today = new Date();
+        const totalDays = 365; // Show last year
+
+        // Calculate start date (365 days ago)
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() - totalDays);
+
+        // Adjust start date to previous Sunday to align grid
+        const dayOfWeek = startDate.getDay();
+        startDate.setDate(startDate.getDate() - dayOfWeek);
+
+        const weeks = [];
+        let currentWeek = [];
+        const currentDate = new Date(startDate);
+
+        // Generate grid data
+        // We go until we reach today or slightly past to fill the week
+        while (currentDate <= today || currentWeek.length > 0) {
+            // Check if date is in future (stop if so, but finish current week)
+            if (currentDate > today && currentWeek.length === 7) break;
+
+            const dateKey = currentDate.toISOString().split('T')[0];
+            const count = dateSubmissions[dateKey] || 0;
+
+            currentWeek.push({
+                date: new Date(currentDate),
+                count: count,
+                color: getLevelColor(count)
+            });
+
+            if (currentWeek.length === 7) {
+                weeks.push(currentWeek);
+                currentWeek = [];
+            }
+
+            // Next day
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        // Push incomplete last week if needed
+        if (currentWeek.length > 0) {
+            while (currentWeek.length < 7) {
+                currentWeek.push(null); // Empty slots
+            }
+            weeks.push(currentWeek);
+        }
+
+        return (
+            <div className="flex flex-col gap-1 overflow-x-auto pb-2">
+                {/*  Render as rows of weeks? No, standard is columns are weeks. */}
+                {/* Flex row of columns */}
+                <div className="flex gap-[3px]">
+                    {weeks.map((week, wIndex) => (
+                        <div key={wIndex} className="flex flex-col gap-[3px]">
+                            {week.map((day, dIndex) => {
+                                if (!day) return <div key={dIndex} className="w-3 h-3" />; // Spacer
+                                return (
+                                    <div
+                                        key={dIndex}
+                                        className={`w-3 h-3 rounded-[2px] ${day.color} hover:ring-1 hover:ring-white/50 transition-all cursor-default`}
+                                        title={`${day.date.toDateString()}: ${day.count} submissions`}
+                                    />
+                                );
+                            })}
+                        </div>
+                    ))}
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 px-1 mt-1">
+                    <span>Less</span>
+                    <div className="flex gap-1 items-center">
+                        <div className="w-3 h-3 bg-white/5 rounded-[2px]" />
+                        <div className="w-3 h-3 bg-green-700 rounded-[2px]" />
+                        <div className="w-3 h-3 bg-green-500 rounded-[2px]" />
+                        <div className="w-3 h-3 bg-green-300 rounded-[2px]" />
+                    </div>
+                    <span>More</span>
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <section id="leetcode" className="min-h-screen py-20 bg-background">
+            <div className="container mx-auto px-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="text-center mb-16"
+                >
+                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                        LeetCode Progress
+                    </h2>
+                    <p className="text-gray-400 text-lg">
+                        Problem solving statistics
+                    </p>
+                </motion.div>
+
+                {loading ? (
+                    <div className="flex justify-center items-center h-64">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-leetcode"></div>
+                    </div>
+                ) : (
+                    <div className="max-w-4xl mx-auto">
+                        {/* Total Solved */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            className="bg-gradient-to-br from-leetcode/20 to-orange-600/20 p-8 rounded-2xl border border-leetcode/30 mb-8 text-center"
+                        >
+                            <div className="text-6xl font-bold text-leetcode mb-2">
+                                {stats?.total_solved || 0}
+                            </div>
+                            <div className="text-xl text-gray-300">Problems Solved</div>
+                            {stats?.ranking && (
+                                <div className="flex items-center justify-center gap-2 mt-4 text-gray-400">
+                                    <Trophy className="w-5 h-5" />
+                                    <span>Ranking: #{stats.ranking.toLocaleString()}</span>
+                                </div>
+                            )}
+                        </motion.div>
+
+                        {/* Difficulty Breakdown */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                            {/* Easy */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                className="bg-surface p-6 rounded-xl"
+                            >
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="text-green-500 font-semibold">Easy</span>
+                                    <span className="text-white font-bold">{stats?.easy_solved || 0}</span>
+                                </div>
+                                <div className="w-full bg-background rounded-full h-3 overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        whileInView={{ width: `${getPercentage(stats?.easy_solved || 0, 800)}%` }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 1, delay: 0.2 }}
+                                        className="h-full bg-green-500 rounded-full"
+                                    />
+                                </div>
+                            </motion.div>
+
+                            {/* Medium */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.1 }}
+                                className="bg-surface p-6 rounded-xl"
+                            >
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="text-yellow-500 font-semibold">Medium</span>
+                                    <span className="text-white font-bold">{stats?.medium_solved || 0}</span>
+                                </div>
+                                <div className="w-full bg-background rounded-full h-3 overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        whileInView={{ width: `${getPercentage(stats?.medium_solved || 0, 1700)}%` }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 1, delay: 0.3 }}
+                                        className="h-full bg-yellow-500 rounded-full"
+                                    />
+                                </div>
+                            </motion.div>
+
+                            {/* Hard */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.2 }}
+                                className="bg-surface p-6 rounded-xl"
+                            >
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="text-red-500 font-semibold">Hard</span>
+                                    <span className="text-white font-bold">{stats?.hard_solved || 0}</span>
+                                </div>
+                                <div className="w-full bg-background rounded-full h-3 overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        whileInView={{ width: `${getPercentage(stats?.hard_solved || 0, 700)}%` }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 1, delay: 0.4 }}
+                                        className="h-full bg-red-500 rounded-full"
+                                    />
+                                </div>
+                            </motion.div>
+                        </div>
+
+                        {/* Expand Button */}
+                        <div className="flex justify-center mb-4">
+                            <button
+                                onClick={toggleExpand}
+                                className="flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-colors animate-bounce"
+                            >
+                                <span className="text-sm font-medium">
+                                    {expanded ? "Show Less" : "View Detailed Stats"}
+                                </span>
+                                {expanded ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
+                            </button>
+                        </div>
+
+                        {/* Expanded Content: Heatmap & Recent */}
+                        <AnimatePresence>
+                            {expanded && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                >
+                                    {detailsLoading ? (
+                                        <div className="flex justify-center py-12">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                        </div>
+                                    ) : (
+                                        <div className="bg-surface/50 rounded-2xl p-6 border border-white/5 space-y-8">
+                                            {/* Heatmap Section */}
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-4 text-green-400">
+                                                    <Calendar className="w-5 h-5" />
+                                                    <h3 className="text-lg font-semibold">Activity Heatmap (Last 12 Months)</h3>
+                                                </div>
+                                                <div className="p-4 bg-background/50 rounded-xl overflow-x-auto">
+                                                    {renderHeatmap()}
+                                                </div>
+                                            </div>
+
+                                            {/* Recent Submissions */}
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-4 text-blue-400">
+                                                    <Clock className="w-5 h-5" />
+                                                    <h3 className="text-lg font-semibold">Recent Solves</h3>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {recentSolves.map((solve) => (
+                                                        <a
+                                                            key={solve.id}
+                                                            href={`https://leetcode.com/problems/${solve.titleSlug}/`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group"
+                                                        >
+                                                            <span className="font-medium text-gray-200 group-hover:text-white truncate max-w-[70%]">
+                                                                {solve.title}
+                                                            </span>
+                                                            <span className="text-xs text-gray-500 font-mono">
+                                                                {new Date(parseInt(solve.timestamp) * 1000).toLocaleDateString()}
+                                                            </span>
+                                                        </a>
+                                                    ))}
+                                                    {recentSolves.length === 0 && (
+                                                        <p className="text-gray-500 text-center py-4">No recent submissions found.</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                )}
+            </div>
+        </section>
+    );
+}

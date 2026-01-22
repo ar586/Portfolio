@@ -23,3 +23,10 @@ async def get_leetcode_heatmap(username: str):
     calendar = json.loads(calendar_str)
     
     return {"submissionCalendar": calendar}
+
+@router.get("/recent/{username}")
+async def get_leetcode_recent(username: str):
+    data = await client.get_recent_submissions(username)
+    if not data or "error" in data:
+        raise HTTPException(status_code=404, detail=data.get("error", "User not found"))
+    return data

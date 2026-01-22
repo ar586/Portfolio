@@ -13,5 +13,9 @@ async def get_github_stats(username: str):
 
 @router.get("/repos/{username}")
 async def get_github_repos(username: str):
-    repos = await fetcher.get_repos(username)
     return repos
+
+@router.get("/events/{username}")
+async def get_github_events(username: str):
+    events = await fetcher.get_events(username)
+    return events

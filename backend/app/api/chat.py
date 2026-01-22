@@ -4,12 +4,9 @@ import os
 from typing import Optional
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain.agents import AgentExecutor
-from langchain.tools.retriever import create_retriever_tool
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
-from langchain.agents.format_scratchpad.tools import format_to_tool_messages
-from langchain.agents.output_parsers.tools import ToolsAgentOutputParser
+
 from dotenv import load_dotenv
 
 from app.database import get_database, get_chat_history, save_chat_message

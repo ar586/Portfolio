@@ -63,3 +63,19 @@ class LeetCodeClient:
         if "errors" in data:
             return {"error": data["errors"][0]["message"]}
         return data.get("data", {}).get("matchedUser", {})
+
+    async def get_recent_submissions(self, username: str, limit: int = 15) -> Dict[str, Any]:
+        query = """
+        query getRecentAcSubmissions($username: String!, $limit: Int!) {
+            recentAcSubmissionList(username: $username, limit: $limit) {
+                id
+                title
+                titleSlug
+                timestamp
+            }
+        }
+        """
+        data = await self._query(query, {"username": username, "limit": limit})
+        if "errors" in data:
+            return {"error": data["errors"][0]["message"]}
+        return data.get("data", {})
