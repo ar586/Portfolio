@@ -14,19 +14,19 @@ export default function Footer() {
         {
             name: 'LinkedIn',
             icon: FaLinkedin,
-            url: 'https://linkedin.com/in/',
+            url: 'https://www.linkedin.com/in/aryan-anand-4aba06309/',
             color: 'hover:text-blue-400'
         },
         {
             name: 'Instagram',
             icon: FaInstagram,
-            url: 'https://instagram.com/',
+            url: 'https://www.instagram.com/aryansingh4600/',
             color: 'hover:text-pink-400'
         },
         {
             name: 'WhatsApp',
             icon: FaWhatsapp,
-            url: 'https://wa.me/',
+            url: 'aryansingh252006sep@gmail.com',
             color: 'hover:text-green-400'
         }
     ];

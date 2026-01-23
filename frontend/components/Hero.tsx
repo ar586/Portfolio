@@ -88,10 +88,10 @@ export default function Hero() {
                                 <a href="https://github.com/ar586" target="_blank" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all">
                                     <Github className="w-5 h-5" />
                                 </a>
-                                <a href="https://linkedin.com" target="_blank" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-blue-400 transition-all">
+                                <a href="https://www.linkedin.com/in/aryan-anand-4aba06309/" target="_blank" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-blue-400 transition-all">
                                     <Linkedin className="w-5 h-5" />
                                 </a>
-                                <a href="mailto:contact@example.com" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all">
+                                <a href="aryansingh252006sep@gmail.com" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all">
                                     <Mail className="w-5 h-5" />
                                 </a>
                             </div>
