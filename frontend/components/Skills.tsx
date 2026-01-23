@@ -26,7 +26,7 @@ const skills = [
 
 export default function Skills() {
     return (
-        <section id="skills" className="min-h-screen py-20 bg-background">
+        <section id="skills" className="min-h-screen py-20">
             <div className="container mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -52,7 +52,7 @@ export default function Skills() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.4, delay: index * 0.05 }}
                             whileHover={{ scale: 1.1, y: -5 }}
-                            className="bg-surface p-6 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-surface/80 transition-all cursor-pointer group"
+                            className="bg-white/5 p-6 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-all cursor-pointer group"
                         >
                             <skill.icon
                                 className="w-12 h-12 transition-colors"

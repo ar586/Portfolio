@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, GitFork, Users, ChevronDown, ChevronUp, Calendar, Clock, Book } from 'lucide-react';
+import { Star, GitFork, Users, ChevronDown, ChevronUp, Calendar, Clock, Book, ExternalLink } from 'lucide-react';
 import api from '@/lib/api';
 
 interface GitHubStats {
@@ -191,7 +191,7 @@ export default function GitHub() {
     };
 
     return (
-        <section id="github" className="min-h-screen py-20 bg-surface/50">
+        <section id="github" className="min-h-screen py-20">
             <div className="container mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -214,94 +214,87 @@ export default function GitHub() {
                     </div>
                 ) : (
                     <>
-                        {/* Stats Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                className="bg-background p-6 rounded-xl border border-github/30"
-                            >
-                                <div className="text-github text-4xl font-bold mb-2">
-                                    {stats?.public_repos || 0}
-                                </div>
-                                <div className="text-gray-400">Public Repositories</div>
-                            </motion.div>
+                        {/* Unified GitHub Card */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            className="max-w-4xl mx-auto bg-[#0d1117] rounded-3xl border border-[#30363d] overflow-hidden mb-12 shadow-2xl group relative"
+                        >
+                            {/* Decorative Grid Background - Subtle */}
+                            <div className="absolute inset-0 bg-[url('https://github.githubassets.com/images/modules/site/home/hero-glow.svg')] bg-cover opacity-20 pointer-events-none"></div>
 
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.1 }}
-                                className="bg-background p-6 rounded-xl border border-github/30"
-                            >
-                                <div className="text-github text-4xl font-bold mb-2">
-                                    {stats?.followers || 0}
-                                </div>
-                                <div className="text-gray-400">Followers</div>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.2 }}
-                                className="bg-background p-6 rounded-xl border border-github/30"
-                            >
-                                <div className="text-github text-4xl font-bold mb-2">
-                                    {stats?.following || 0}
-                                </div>
-                                <div className="text-gray-400">Following</div>
-                            </motion.div>
-                        </div>
-
-                        {/* Top Repositories */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                            {repos.map((repo, index) => (
-                                <motion.a
-                                    key={repo.name}
-                                    href={repo.html_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: index * 0.1 }}
-                                    whileHover={{ y: -5 }}
-                                    className="bg-background p-6 rounded-xl border border-surface hover:border-github/50 transition-all"
-                                >
-                                    <h3 className="text-lg font-bold text-white mb-2">
-                                        {repo.name}
-                                    </h3>
-                                    <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                                        {repo.description || 'No description'}
-                                    </p>
-
-                                    <div className="flex items-center gap-4 text-sm text-gray-400">
-                                        {repo.language && (
-                                            <span className="flex items-center gap-1">
-                                                <div className="w-3 h-3 rounded-full bg-github"></div>
-                                                {repo.language}
-                                            </span>
-                                        )}
-                                        <span className="flex items-center gap-1">
-                                            <Star className="w-4 h-4" />
-                                            {repo.stargazers_count}
-                                        </span>
-                                        <span className="flex items-center gap-1">
-                                            <GitFork className="w-4 h-4" />
-                                            {repo.forks_count}
-                                        </span>
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
+                                {/* Left Column: Main Stats */}
+                                <div className="md:col-span-5 p-8 md:p-12 flex flex-col justify-center items-center md:items-start border-b md:border-b-0 md:border-r border-[#30363d] bg-[#0d1117]/50 relative z-10">
+                                    <div className="mb-6 p-4 rounded-full bg-white/5 border border-[#30363d]">
+                                        <Book className="w-12 h-12 text-white" />
                                     </div>
-                                </motion.a>
-                            ))}
-                        </div>
+                                    <h3 className="text-gray-400 text-lg font-medium mb-1">Total Repositories</h3>
+                                    <div className="text-6xl md:text-7xl font-bold text-white tracking-tight mb-4">
+                                        {stats?.public_repos || 0}
+                                    </div>
+                                    <a
+                                        href="https://github.com/ar586?tab=repositories"
+                                        target="_blank"
+                                        className="text-[#58a6ff] hover:text-[#58a6ff] hover:underline text-sm font-medium flex items-center gap-1"
+                                    >
+                                        View Profile <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                </div>
+
+                                {/* Right Column: Top 3 Repos */}
+                                <div className="md:col-span-7 p-8 md:p-12 bg-[#0d1117] relative z-10">
+                                    <div className="flex items-center gap-2 mb-6 text-gray-200">
+                                        <Star className="w-5 h-5 text-[#e3b341]" />
+                                        <h3 className="text-lg font-bold">Top Repositories</h3>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {repos.slice(0, 3).map((repo) => (
+                                            <a
+                                                key={repo.name}
+                                                href={repo.html_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block p-4 rounded-xl border border-[#30363d] bg-[#161b22] hover:border-[#8b949e] transition-all group/repo"
+                                            >
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <h4 className="font-semibold text-[#58a6ff] group-hover/repo:underline truncate pr-4">
+                                                        {repo.name}
+                                                    </h4>
+                                                    <div className="flex items-center gap-1 text-gray-400 text-xs">
+                                                        <Star className="w-3 h-3" />
+                                                        <span>{repo.stargazers_count}</span>
+                                                    </div>
+                                                </div>
+                                                <p className="text-xs text-[#8b949e] line-clamp-1 mb-3">
+                                                    {repo.description || 'No description available'}
+                                                </p>
+                                                <div className="flex items-center gap-3 text-xs text-[#8b949e]">
+                                                    {repo.language && (
+                                                        <span className="flex items-center gap-1">
+                                                            <span className="w-2 h-2 rounded-full bg-[#f1e05a]"></span>
+                                                            {repo.language}
+                                                        </span>
+                                                    )}
+                                                    <span className="flex items-center gap-1">
+                                                        <GitFork className="w-3 h-3" />
+                                                        {repo.forks_count}
+                                                    </span>
+                                                </div>
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
 
                         {/* Expand Button */}
                         <div className="flex justify-center mb-4">
                             <button
                                 onClick={toggleExpand}
-                                className="flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-colors animate-bounce"
+                                className="flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-colors"
                             >
                                 <span className="text-sm font-medium">
                                     {expanded ? "Show Less" : "View Detailed Stats"}
@@ -343,7 +336,7 @@ export default function GitHub() {
                                                     <h3 className="text-lg font-semibold">Recent Contributions</h3>
                                                 </div>
                                                 <div className="space-y-3">
-                                                    {events.map((event) => (
+                                                    {events.slice(0, 5).map((event) => (
                                                         <a
                                                             key={event.id}
                                                             href={`https://github.com/${event.repo.name}`}

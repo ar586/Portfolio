@@ -46,7 +46,7 @@ export default function Projects() {
     }, []);
 
     return (
-        <section id="projects" className="min-h-screen py-20 bg-background">
+        <section id="projects" className="min-h-screen py-20">
             <div className="container mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -77,7 +77,7 @@ export default function Projects() {
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5, delay: index * 0.1 }}
                                 whileHover={{ y: -10 }}
-                                className="bg-surface rounded-xl overflow-hidden border border-surface hover:border-primary/50 transition-all"
+                                className="bg-white/5 rounded-xl overflow-hidden border border-white/5 hover:border-primary/50 transition-all"
                             >
                                 {/* Project Image */}
                                 <div className="h-48 bg-gradient-to-br from-primary/20 to-leetcode/20 flex items-center justify-center overflow-hidden">

@@ -32,7 +32,7 @@ export default function Footer() {
     ];
 
     return (
-        <footer className="w-full py-8 bg-surface/30 backdrop-blur-md border-t border-white/5 relative z-10">
+        <footer className="w-full py-8 border-t border-white/5 relative z-10">
             <div className="container mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                     {/* Copyright / Brand */}

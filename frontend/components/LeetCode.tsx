@@ -91,10 +91,10 @@ export default function LeetCode() {
 
         // LeetCode colors - brighter for visibility
         const getLevelColor = (count: number) => {
-            if (count === 0) return 'bg-white/5'; // Empty
-            if (count <= 2) return 'bg-green-700'; // Light activity
-            if (count <= 5) return 'bg-green-500'; // Medium
-            return 'bg-green-300'; // High activity
+            if (count === 0) return 'bg-[#3e3e3e]'; // Empty/Inactive
+            if (count <= 2) return 'bg-[#005c49]'; // Light activity
+            if (count <= 5) return 'bg-[#008f72]'; // Medium
+            return 'bg-[#00b8a3]'; // High activity
         };
 
         const today = new Date();
@@ -167,10 +167,10 @@ export default function LeetCode() {
                 <div className="flex justify-between text-xs text-gray-500 px-1 mt-1">
                     <span>Less</span>
                     <div className="flex gap-1 items-center">
-                        <div className="w-3 h-3 bg-white/5 rounded-[2px]" />
-                        <div className="w-3 h-3 bg-green-700 rounded-[2px]" />
-                        <div className="w-3 h-3 bg-green-500 rounded-[2px]" />
-                        <div className="w-3 h-3 bg-green-300 rounded-[2px]" />
+                        <div className="w-3 h-3 bg-[#3e3e3e] rounded-[2px]" />
+                        <div className="w-3 h-3 bg-[#005c49] rounded-[2px]" />
+                        <div className="w-3 h-3 bg-[#008f72] rounded-[2px]" />
+                        <div className="w-3 h-3 bg-[#00b8a3] rounded-[2px]" />
                     </div>
                     <span>More</span>
                 </div>
@@ -179,7 +179,7 @@ export default function LeetCode() {
     };
 
     return (
-        <section id="leetcode" className="min-h-screen py-20 bg-background">
+        <section id="leetcode" className="min-h-screen py-20">
             <div className="container mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -202,101 +202,101 @@ export default function LeetCode() {
                     </div>
                 ) : (
                     <div className="max-w-4xl mx-auto">
-                        {/* Total Solved */}
+                        {/* Unified Stats Card */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
-                            className="bg-gradient-to-br from-leetcode/20 to-orange-600/20 p-8 rounded-2xl border border-leetcode/30 mb-8 text-center"
+                            className="bg-[#282828] rounded-3xl border border-[#3e3e3e] p-8 md:p-10 mb-12 shadow-2xl relative overflow-hidden group"
                         >
-                            <div className="text-6xl font-bold text-leetcode mb-2">
-                                {stats?.total_solved || 0}
+                            {/* Decorative Background Blob - LeetCode Orange */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-[#ffa116]/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none group-hover:bg-[#ffa116]/20 transition-all duration-500"></div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center relative z-10">
+                                {/* Left: Main Stats */}
+                                <div className="text-center md:text-left flex flex-col items-center md:items-start">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="p-2 rounded-lg bg-[#3e3e3e] text-[#ffa116]">
+                                            <Trophy className="w-6 h-6" />
+                                        </div>
+                                        <span className="text-gray-400 font-medium">Rank #{stats?.ranking.toLocaleString() || 'N/A'}</span>
+                                    </div>
+
+                                    <div className="text-7xl md:text-8xl font-black text-white tracking-tighter mb-2">
+                                        {stats?.total_solved || 0}
+                                    </div>
+                                    <div className="text-xl text-gray-400 font-light">
+                                        Problems Solved
+                                    </div>
+                                </div>
+
+                                {/* Right: Difficulty Breakdown */}
+                                <div className="flex flex-col justify-center gap-6">
+                                    {/* Easy */}
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-green-400 font-medium flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-green-500"></div> Easy
+                                            </span>
+                                            <span className="text-white font-bold text-lg">{stats?.easy_solved || 0} <span className="text-gray-600 text-sm font-normal">/ 800+</span></span>
+                                        </div>
+                                        <div className="w-full bg-[#3e3e3e] rounded-full h-2 overflow-hidden">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                whileInView={{ width: `${getPercentage(stats?.easy_solved || 0, 800)}%` }}
+                                                viewport={{ once: true }}
+                                                transition={{ duration: 1, delay: 0.2 }}
+                                                className="h-full bg-gradient-to-r from-green-500 to-[#00b8a3] rounded-full"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Medium */}
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-[#ffc01e] font-medium flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-[#ffc01e]"></div> Medium
+                                            </span>
+                                            <span className="text-white font-bold text-lg">{stats?.medium_solved || 0} <span className="text-gray-500 text-sm font-normal">/ 1700+</span></span>
+                                        </div>
+                                        <div className="w-full bg-[#3e3e3e] rounded-full h-2 overflow-hidden">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                whileInView={{ width: `${getPercentage(stats?.medium_solved || 0, 1700)}%` }}
+                                                viewport={{ once: true }}
+                                                transition={{ duration: 1, delay: 0.3 }}
+                                                className="h-full bg-gradient-to-r from-[#ffc01e] to-[#ffc01e] rounded-full"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Hard */}
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-[#ff375f] font-medium flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-[#ff375f]"></div> Hard
+                                            </span>
+                                            <span className="text-white font-bold text-lg">{stats?.hard_solved || 0} <span className="text-gray-500 text-sm font-normal">/ 700+</span></span>
+                                        </div>
+                                        <div className="w-full bg-[#3e3e3e] rounded-full h-2 overflow-hidden">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                whileInView={{ width: `${getPercentage(stats?.hard_solved || 0, 700)}%` }}
+                                                viewport={{ once: true }}
+                                                transition={{ duration: 1, delay: 0.4 }}
+                                                className="h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="text-xl text-gray-300">Problems Solved</div>
-                            {stats?.ranking && (
-                                <div className="flex items-center justify-center gap-2 mt-4 text-gray-400">
-                                    <Trophy className="w-5 h-5" />
-                                    <span>Ranking: #{stats.ranking.toLocaleString()}</span>
-                                </div>
-                            )}
                         </motion.div>
-
-                        {/* Difficulty Breakdown */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                            {/* Easy */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                className="bg-surface p-6 rounded-xl"
-                            >
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-green-500 font-semibold">Easy</span>
-                                    <span className="text-white font-bold">{stats?.easy_solved || 0}</span>
-                                </div>
-                                <div className="w-full bg-background rounded-full h-3 overflow-hidden">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        whileInView={{ width: `${getPercentage(stats?.easy_solved || 0, 800)}%` }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 1, delay: 0.2 }}
-                                        className="h-full bg-green-500 rounded-full"
-                                    />
-                                </div>
-                            </motion.div>
-
-                            {/* Medium */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.1 }}
-                                className="bg-surface p-6 rounded-xl"
-                            >
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-yellow-500 font-semibold">Medium</span>
-                                    <span className="text-white font-bold">{stats?.medium_solved || 0}</span>
-                                </div>
-                                <div className="w-full bg-background rounded-full h-3 overflow-hidden">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        whileInView={{ width: `${getPercentage(stats?.medium_solved || 0, 1700)}%` }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 1, delay: 0.3 }}
-                                        className="h-full bg-yellow-500 rounded-full"
-                                    />
-                                </div>
-                            </motion.div>
-
-                            {/* Hard */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.2 }}
-                                className="bg-surface p-6 rounded-xl"
-                            >
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-red-500 font-semibold">Hard</span>
-                                    <span className="text-white font-bold">{stats?.hard_solved || 0}</span>
-                                </div>
-                                <div className="w-full bg-background rounded-full h-3 overflow-hidden">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        whileInView={{ width: `${getPercentage(stats?.hard_solved || 0, 700)}%` }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 1, delay: 0.4 }}
-                                        className="h-full bg-red-500 rounded-full"
-                                    />
-                                </div>
-                            </motion.div>
-                        </div>
 
                         {/* Expand Button */}
                         <div className="flex justify-center mb-4">
                             <button
                                 onClick={toggleExpand}
-                                className="flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-colors animate-bounce"
+                                className="flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-colors"
                             >
                                 <span className="text-sm font-medium">
                                     {expanded ? "Show Less" : "View Detailed Stats"}
@@ -319,37 +319,37 @@ export default function LeetCode() {
                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                                         </div>
                                     ) : (
-                                        <div className="bg-surface/50 rounded-2xl p-6 border border-white/5 space-y-8">
+                                        <div className="bg-[#282828] rounded-2xl p-6 border border-[#3e3e3e] space-y-8 shadow-2xl">
                                             {/* Heatmap Section */}
                                             <div>
-                                                <div className="flex items-center gap-2 mb-4 text-green-400">
+                                                <div className="flex items-center gap-2 mb-4 text-[#ffa116]">
                                                     <Calendar className="w-5 h-5" />
                                                     <h3 className="text-lg font-semibold">Activity Heatmap (Last 12 Months)</h3>
                                                 </div>
-                                                <div className="p-4 bg-background/50 rounded-xl overflow-x-auto">
+                                                <div className="p-4 bg-[#3e3e3e]/50 rounded-xl overflow-x-auto text-gray-300">
                                                     {renderHeatmap()}
                                                 </div>
                                             </div>
 
                                             {/* Recent Submissions */}
                                             <div>
-                                                <div className="flex items-center gap-2 mb-4 text-blue-400">
+                                                <div className="flex items-center gap-2 mb-4 text-[#ffa116]">
                                                     <Clock className="w-5 h-5" />
                                                     <h3 className="text-lg font-semibold">Recent Solves</h3>
                                                 </div>
                                                 <div className="space-y-3">
-                                                    {recentSolves.map((solve) => (
+                                                    {recentSolves.slice(0, 5).map((solve) => (
                                                         <a
                                                             key={solve.id}
                                                             href={`https://leetcode.com/problems/${solve.titleSlug}/`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group"
+                                                            className="flex items-center justify-between p-3 bg-[#3e3e3e] hover:bg-[#4a4a4a] rounded-lg transition-colors group"
                                                         >
                                                             <span className="font-medium text-gray-200 group-hover:text-white truncate max-w-[70%]">
                                                                 {solve.title}
                                                             </span>
-                                                            <span className="text-xs text-gray-500 font-mono">
+                                                            <span className="text-xs text-gray-400 font-mono">
                                                                 {new Date(parseInt(solve.timestamp) * 1000).toLocaleDateString()}
                                                             </span>
                                                         </a>

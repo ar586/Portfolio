@@ -20,7 +20,7 @@ const hobbies = [
         longDescription: "Starting from Champak, Magic Pot to Kite Runner and 1984, reading has been a generous teacher and supporter of mine. Khaled Hosseini and Stephen King are some of my favourite authors.",
         icon: Book,
         color: 'from-green-500 to-emerald-500',
-        image: '/hobby-reading.jpg'
+        image: '/hobby-reading.jpg?v=2'
     },
     {
         name: 'Guitar Playing',
@@ -44,7 +44,7 @@ export default function Hobbies() {
     const [hoveredHobby, setHoveredHobby] = useState<number | null>(null);
 
     return (
-        <section id="hobbies" className="min-h-screen py-20 bg-surface/50">
+        <section id="hobbies" className="min-h-screen py-20">
             <div className="container mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -88,11 +88,10 @@ export default function Hobbies() {
                                 {hoveredHobby === index && (
                                     <>
                                         {/* Note: User needs to provide images. If missing, it will be blank/color. */}
-                                        <Image
+                                        <img
                                             src={hobby.image}
                                             alt={hobby.name}
-                                            fill
-                                            className="object-cover"
+                                            className="absolute inset-0 w-full h-full object-cover"
                                             onError={(e) => {
                                                 // Fallback if image fails - keeping the color gradient
                                                 e.currentTarget.style.display = 'none';
