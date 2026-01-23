@@ -12,7 +12,7 @@ const skills = [
     { name: 'JavaScript', icon: SiJavascript, color: '#F7DF1E' },
     { name: 'TypeScript', icon: SiTypescript, color: '#3178C6' },
     { name: 'React', icon: SiReact, color: '#61DAFB' },
-    { name: 'Next.js', icon: SiNextdotjs, color: '#000000' },
+    { name: 'Next.js', icon: SiNextdotjs, color: '#FFFFFF' },
     { name: 'Node.js', icon: SiNodedotjs, color: '#339933' },
     { name: 'PyTorch', icon: SiPytorch, color: '#EE4C2C' },
     { name: 'TensorFlow', icon: SiTensorflow, color: '#FF6F00' },

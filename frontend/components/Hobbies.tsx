@@ -102,40 +102,42 @@ export default function Hobbies() {
                                 )}
                             </motion.div>
 
-                            <div className="relative z-10 h-full p-6 flex flex-col justify-end">
-                                <motion.div
-                                    layout="position"
-                                    className={`w-12 h-12 rounded-full bg-gradient-to-br ${hobby.color} flex items-center justify-center mb-4`}
-                                >
-                                    <hobby.icon className="w-6 h-6 text-white" />
-                                </motion.div>
+                            <div className="relative z-10 h-full">
+                                {/* Centered Icon & Title */}
+                                <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none p-6">
+                                    <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${hobby.color} flex items-center justify-center mb-4 shadow-lg`}>
+                                        <hobby.icon className="w-7 h-7 text-white" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-white shadow-black/50 drop-shadow-md">
+                                        {hobby.name}
+                                    </h3>
+                                </div>
 
-                                <motion.h3 layout="position" className="text-xl font-bold text-white mb-2">
-                                    {hobby.name}
-                                </motion.h3>
-
-                                <AnimatePresence mode="wait">
-                                    {hoveredHobby === index ? (
-                                        <motion.p
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
-                                            exit={{ opacity: 0, height: 0 }}
-                                            className="text-gray-200 text-sm md:text-base"
-                                        >
-                                            {hobby.longDescription}
-                                        </motion.p>
-                                    ) : (
-                                        <motion.p
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            transition={{ delay: 0.1 }}
-                                            className="text-gray-400 text-sm truncate"
-                                        >
-                                            {hobby.shortDescription}
-                                        </motion.p>
-                                    )}
-                                </AnimatePresence>
+                                {/* Bottom Text */}
+                                <div className="absolute bottom-6 left-6 right-6 text-center pointer-events-none">
+                                    <AnimatePresence mode="wait">
+                                        {hoveredHobby === index ? (
+                                            <motion.p
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 10 }}
+                                                className="text-gray-100 text-sm md:text-base font-medium drop-shadow-md"
+                                            >
+                                                {hobby.longDescription}
+                                            </motion.p>
+                                        ) : (
+                                            <motion.p
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                transition={{ delay: 0.1 }}
+                                                className="text-gray-300 text-sm font-medium drop-shadow-md"
+                                            >
+                                                {hobby.shortDescription}
+                                            </motion.p>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
                             </div>
                         </motion.div>
                     ))}
