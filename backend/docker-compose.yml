@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  portfolio-backend:
+    build: .
+    container_name: portfolio-backend
+    ports:
+      - "2509:2509"
+    env_file:
+      - .env
+    volumes:
+      - .:/app  # Optional: for live reloading if you run uvicorn with --reload
+    restart: always
