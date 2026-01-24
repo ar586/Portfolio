@@ -254,7 +254,7 @@ export default function ChatInterface() {
                     <button
                         type="submit"
                         disabled={!input.trim() || isLoading}
-                        className="absolute right-2 top-2 p-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-purple-500/25 active:scale-95"
+                        className="absolute right-2 top-2 p-2 bg-purple-600 rounded-lg text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95"
                     >
                         <Send className="w-5 h-5" />
                     </button>
