@@ -68,6 +68,7 @@ export default function Hobbies() {
                             layout
                             onHoverStart={() => setHoveredHobby(index)}
                             onHoverEnd={() => setHoveredHobby(null)}
+                            onClick={() => setHoveredHobby(hoveredHobby === index ? null : index)}
                             className={`relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-out border border-surface hover:border-primary/50
                                 ${hoveredHobby === index ? 'flex-[2]' : 'flex-1'}
                             `}
