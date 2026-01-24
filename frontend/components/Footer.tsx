@@ -37,7 +37,7 @@ export default function Footer() {
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                     {/* Copyright / Brand */}
                     <div className="text-center md:text-left">
-                        <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+                        <h3 className="text-xl font-bold text-white">
                             Aryan Anand
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">

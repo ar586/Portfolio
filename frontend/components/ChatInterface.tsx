@@ -170,7 +170,7 @@ export default function ChatInterface() {
             <div className="p-4 md:p-6 border-b border-white/10 bg-white/5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <div className="relative">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                        <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center shadow-lg">
                             <Bot className="w-7 h-7 text-white" />
                         </div>
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0a0a0a] rounded-full"></span>
