@@ -1,8 +1,7 @@
 
 import os
 import sys
-# Pre-import faiss to prevent dynamic linking issues
-import faiss
+# Pre-import faiss removed
 
 # Add backend root to sys.path
 current_file = os.path.abspath(__file__)
@@ -11,7 +10,7 @@ if backend_root not in sys.path:
     sys.path.append(backend_root)
 
 from app.personal.loader import PersonalKBLoader
-from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import Qdrant
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_core.documents import Document
 from dotenv import load_dotenv
@@ -86,11 +85,35 @@ def build_index():
         return
 
     print(f"Creating index from {len(documents)} chunks...")
-    vectorstore = FAISS.from_documents(documents, embeddings)
     
-    print(f"Saving index to {VECTORSTORE_PATH}...")
-    vectorstore.save_local(VECTORSTORE_PATH)
-    print("Done!")
+    qdrant_url = os.getenv("QDRANT_URL")
+    qdrant_api_key = os.getenv("QDRANT_API_KEY")
+
+    if not qdrant_url or not qdrant_api_key:
+        print("Error: QDRANT_URL or QDRANT_API_KEY not found in environment variables.")
+        return
+
+    from langchain_qdrant import QdrantVectorStore
+    from qdrant_client import QdrantClient
+    from qdrant_client.http import models
+
+    client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
+    
+    print("Recreating collection 'portfolio_docs' on Qdrant Cloud...")
+    client.recreate_collection(
+        collection_name="portfolio_docs",
+        vectors_config=models.VectorParams(size=3072, distance=models.Distance.COSINE)
+    )
+
+    vectorstore = QdrantVectorStore(
+        client=client, 
+        collection_name="portfolio_docs", 
+        embedding=embeddings
+    )
+    
+    vectorstore.add_documents(documents)
+    
+    print("Index successfully saved to Qdrant Cloud!")
 
 if __name__ == "__main__":
     build_index()

@@ -5,9 +5,10 @@ python-dotenv
 pydantic-settings
 langgraph
 langchain
-faiss-cpu
+qdrant-client
 langchain-community
 sentence-transformers
 fastembed
 langchain-google-genai
 motor
+langchain-qdrant

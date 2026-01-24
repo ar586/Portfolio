@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import os
 from typing import Optional
-from langchain_community.vectorstores import FAISS
+from langchain_qdrant import QdrantVectorStore
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -17,21 +17,28 @@ load_dotenv()
 
 router = APIRouter()
 
-# Define the path to the vector store
-current_dir = os.path.dirname(os.path.abspath(__file__))
-# vectorstore/faiss_index
-VECTORSTORE_PATH = os.path.abspath(os.path.join(current_dir, "..", "vectorstore", "faiss_index"))
-
 class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
 
 def get_vectorstore():
-    if not os.path.exists(VECTORSTORE_PATH):
-        raise FileNotFoundError(f"Vector store not found at {VECTORSTORE_PATH}. Please run indexer.py first.")
+    qdrant_url = os.getenv("QDRANT_URL")
+    qdrant_api_key = os.getenv("QDRANT_API_KEY")
+
+    if not qdrant_url or not qdrant_api_key:
+        raise ValueError("QDRANT_URL or QDRANT_API_KEY not found in environment variables.")
+
+    from qdrant_client import QdrantClient
     
     embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
-    return FAISS.load_local(VECTORSTORE_PATH, embeddings, allow_dangerous_deserialization=True)
+    
+    client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
+    
+    return QdrantVectorStore(
+        client=client,
+        collection_name="portfolio_docs",
+        embedding=embeddings
+    )
 
 @router.post("/query")
 async def chat_endpoint(request: ChatRequest):
