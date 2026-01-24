@@ -162,9 +162,9 @@ export default function ChatInterface() {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto h-[700px] flex flex-col bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden text-white/90">
+        <div className="w-full max-w-4xl mx-auto h-[80vh] md:h-[700px] flex flex-col bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden text-white/90">
             {/* Header */}
-            <div className="p-6 border-b border-white/10 bg-white/5 flex items-center justify-between gap-4">
+            <div className="p-4 md:p-6 border-b border-white/10 bg-white/5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <div className="relative">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">

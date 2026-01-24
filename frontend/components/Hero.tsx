@@ -14,7 +14,7 @@ export default function Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
-                    className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-10 md:p-16 shadow-2xl"
+                    className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-16 shadow-2xl"
                 >
                     <div className="flex flex-col md:flex-row items-center gap-12 md:gap-20">
 

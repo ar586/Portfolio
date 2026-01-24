@@ -17,7 +17,7 @@ export default function FloatingNavbar() {
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="fixed top-6 right-6 z-50 fixed-navbar-container"
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 md:translate-x-0 md:bottom-auto md:top-6 md:left-auto md:right-6 z-50 fixed-navbar-container"
         >
             <div className="flex items-center gap-2 p-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full shadow-2xl">
                 {links.map((link) => (
