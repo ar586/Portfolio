@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, GitFork, Users, ChevronDown, ChevronUp, Calendar, Clock, Book, ExternalLink } from 'lucide-react';
-import api from '@/lib/api';
+import api from '../lib/api';
 
 interface GitHubStats {
     public_repos: number;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
-import api from '@/lib/api';
+import api from '../lib/api';
 
 interface LeetCodeStats {
     total_solved: number;
