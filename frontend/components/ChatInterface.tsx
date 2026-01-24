@@ -25,11 +25,14 @@ export default function ChatInterface() {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
     const [sessionId, setSessionId] = useState<string | null>(null);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
     };
 
     useEffect(() => {
@@ -185,7 +188,10 @@ export default function ChatInterface() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+            <div
+                ref={scrollRef}
+                className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar scroll-smooth"
+            >
                 {messages.map((message) => (
                     <motion.div
                         key={message.id}
@@ -231,7 +237,7 @@ export default function ChatInterface() {
                         </div>
                     </motion.div>
                 )}
-                <div ref={messagesEndRef} />
+
             </div>
 
             {/* Input Area */}
