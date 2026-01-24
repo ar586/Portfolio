@@ -105,7 +105,7 @@ export default function Hobbies() {
 
                             <div className="relative z-10 h-full">
                                 {/* Centered Icon & Title */}
-                                <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none p-6">
+                                <div className={`absolute inset-0 flex flex-col ${hoveredHobby === index ? 'justify-start pt-8 md:pt-16' : 'justify-center'} items-center pointer-events-none p-6 transition-all duration-500 ease-out`}>
                                     <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${hobby.color} flex items-center justify-center mb-4 shadow-lg`}>
                                         <hobby.icon className="w-7 h-7 text-white" />
                                     </div>
