@@ -26,7 +26,7 @@ export default function Footer() {
         {
             name: 'WhatsApp',
             icon: FaWhatsapp,
-            url: 'aryansingh252006sep@gmail.com',
+            url: 'https://wa.me/919776394403',
             color: 'hover:text-green-400'
         }
     ];

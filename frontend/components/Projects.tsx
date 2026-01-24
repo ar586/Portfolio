@@ -40,6 +40,15 @@ export default function Projects() {
                 deployed_link: 'https://cinematrix.devaryan.tech',
                 tech_stack: ['LangGraph', 'Agentic AI', 'Next.js'],
                 featured: true
+            },
+            {
+                project_id: 'portfolio',
+                title: 'Portfolio',
+                description: "Portfolio site having chatbot to answer visitor's query, and updating people of my everyday progress.",
+                image_url: '/portfolio.jpg',
+                github_link: 'https://github.com/ar586/Portfolio',
+                tech_stack: ['Next.js', 'FastAPI', 'LangChain', 'Qdrant'],
+                featured: true
             }
         ]);
         setLoading(false);

@@ -51,8 +51,16 @@ export default function GitHub() {
         ])
             .then(([statsRes, reposRes]) => {
                 setStats(statsRes.data);
-                const sortedRepos = reposRes.data.repos.sort((a: Repository, b: Repository) => b.stargazers_count - a.stargazers_count);
-                setRepos(sortedRepos.slice(0, 6)); // Top 6 repos by stars
+                let sortedRepos = reposRes.data.repos.sort((a: Repository, b: Repository) => b.stargazers_count - a.stargazers_count);
+
+                // Pin 'dastabbej' to top
+                const pinnedRepoIndex = sortedRepos.findIndex((r: Repository) => r.name.toLowerCase().includes('dastabbej'));
+                if (pinnedRepoIndex > -1) {
+                    const pinnedRepo = sortedRepos.splice(pinnedRepoIndex, 1)[0];
+                    sortedRepos.unshift(pinnedRepo);
+                }
+
+                setRepos(sortedRepos.slice(0, 3)); // Top 3 repos
                 setLoading(false);
             })
             .catch(err => {
@@ -297,7 +305,7 @@ export default function GitHub() {
                                                         <span>{repo.stargazers_count}</span>
                                                     </div>
                                                 </div>
-                                                <p className="text-xs text-[#8b949e] line-clamp-1 mb-3">
+                                                <p className="text-xs text-gray-400 line-clamp-3 mb-3">
                                                     {repo.description || 'No description available'}
                                                 </p>
                                                 <div className="flex items-center gap-3 text-xs text-[#8b949e]">
@@ -470,7 +478,7 @@ export default function GitHub() {
                                                                     />
                                                                 )}
                                                             </div>
-                                                            <p className="text-xs text-gray-400 line-clamp-2 mb-3 h-8">
+                                                            <p className="text-xs text-gray-400 line-clamp-4 mb-3 min-h-[4rem]">
                                                                 {repo.description || "No description provided."}
                                                             </p>
                                                             <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">

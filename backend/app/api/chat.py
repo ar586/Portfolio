@@ -1,6 +1,9 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import os
+import json
+import asyncio
 from typing import Optional
 from langchain_qdrant import QdrantVectorStore
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
@@ -43,23 +46,27 @@ def get_vectorstore():
 @router.post("/query")
 async def chat_endpoint(request: ChatRequest):
     try:
-        # 1. Setup Vector Store
+        # 1. Setup Vector Store & Retriever
         vectorstore = get_vectorstore()
         retriever = vectorstore.as_retriever()
         
         # 2. Setup LLM
         llm = ChatGoogleGenerativeAI(model="models/gemma-3-27b-it", temperature=0.7)
         
-        # 3. Setup Simple RAG Chain (Tools integration has compatibility issues)
+        # 3. Setup RAG Chain
         from langchain_core.output_parsers import StrOutputParser
         from langchain_core.runnables import RunnablePassthrough
         
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
         
-        # 4. Handle History (Fetch before generating response)
+        # 4. Handle History
         db = get_database()
         session_id = request.session_id
+        if not session_id:
+            import uuid
+            session_id = str(uuid.uuid4())
+
         
         chat_history_str = ""
         if session_id:
@@ -93,15 +100,36 @@ Question:
             | StrOutputParser()
         )
         
-        # 5. Run Chain
-        response = await rag_chain.ainvoke(request.message)
-        
-        # 6. Save History
-        if session_id:
-            await save_chat_message(db, session_id, request.message, response)
-        
-        return {"response": response, "session_id": session_id}
+        async def stream_generator():
+            full_response = ""
+            
+            # Send session_id first as a metadata chunk
+            yield json.dumps({"session_id": session_id}) + "\n"
+            
+            async for chunk in rag_chain.astream(request.message):
+                full_response += chunk
+                yield json.dumps({"text": chunk}) + "\n"
+            
+            # Save history after streaming is complete
+            if session_id:
+                try:
+                    await save_chat_message(db, session_id, request.message, full_response)
+                except Exception as e:
+                    print(f"Error saving chat history: {e}")
+
+        return StreamingResponse(stream_generator(), media_type="application/x-ndjson")
         
     except Exception as e:
         print(f"Error in chat endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/history/{session_id}")
+async def get_history_endpoint(session_id: str):
+    """Retrieve chat history for a given session"""
+    try:
+        db = get_database()
+        history = await get_chat_history(db, session_id, limit=50) # Fetch more for UI
+        return {"history": history}
+    except Exception as e:
+        print(f"Error fetching history: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

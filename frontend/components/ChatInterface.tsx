@@ -34,6 +34,40 @@ export default function ChatInterface() {
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        const savedSessionId = localStorage.getItem('chat_session_id');
+        if (savedSessionId) {
+            setSessionId(savedSessionId);
+            fetchHistory(savedSessionId);
+        }
+    }, []);
+
+    const fetchHistory = async (sid: string) => {
+        try {
+            const res = await fetch(`http://localhost:8000/api/v1/chat/history/${sid}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.history && data.history.length > 0) {
+                    const formattedMessages: Message[] = data.history.map((msg: any) => ({
+                        id: Math.random().toString(36).substr(2, 9),
+                        role: msg.role,
+                        content: msg.content,
+                        timestamp: new Date(msg.timestamp)
+                    }));
+                    setMessages(prev => {
+                        // Keep only the welcome message (first one) and append history
+                        const welcomeMsg = prev[0];
+                        return [welcomeMsg, ...formattedMessages];
+                    });
+                }
+            }
+        } catch (err) {
+            console.error("Failed to fetch history", err);
+            // If fetching fails (e.g., invalid session), maybe clear localStorage?
+            // localStorage.removeItem('chat_session_id'); 
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
@@ -48,6 +82,16 @@ export default function ChatInterface() {
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
+
+        // Create a placeholder for the bot message
+        const botMessageId = (Date.now() + 1).toString();
+        const placeholderMessage: Message = {
+            id: botMessageId,
+            role: 'assistant',
+            content: '',
+            timestamp: new Date()
+        };
+        setMessages(prev => [...prev, placeholderMessage]);
 
         try {
             const response = await fetch('http://localhost:8000/api/v1/chat/query', {
@@ -65,29 +109,51 @@ export default function ChatInterface() {
                 throw new Error('Failed to get response');
             }
 
-            const data = await response.json();
+            const reader = response.body?.getReader();
+            if (!reader) throw new Error('No reader available');
 
-            if (data.session_id) {
-                setSessionId(data.session_id);
+            const decoder = new TextDecoder();
+            let accumulatedResponse = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.trim()) {
+                        try {
+                            const data = JSON.parse(line);
+
+                            if (data.session_id) {
+                                setSessionId(data.session_id);
+                                localStorage.setItem('chat_session_id', data.session_id);
+                            }
+
+                            if (data.text) {
+                                accumulatedResponse += data.text;
+                                setMessages(prev => prev.map(msg =>
+                                    msg.id === botMessageId
+                                        ? { ...msg, content: accumulatedResponse }
+                                        : msg
+                                ));
+                            }
+                        } catch (e) {
+                            console.error('Error parsing chunk:', e);
+                        }
+                    }
+                }
             }
 
-            const botMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                role: 'assistant',
-                content: data.response,
-                timestamp: new Date()
-            };
-
-            setMessages(prev => [...prev, botMessage]);
         } catch (error) {
             console.error('Chat error:', error);
-            const errorMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                role: 'assistant',
-                content: "I apologize, but I'm having trouble connecting to the server right now. Please try again later.",
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, errorMessage]);
+            setMessages(prev => prev.map(msg =>
+                msg.id === botMessageId
+                    ? { ...msg, content: "I apologize, but I'm having trouble connecting to the server right now. Please try again later." }
+                    : msg
+            ));
         } finally {
             setIsLoading(false);
         }
