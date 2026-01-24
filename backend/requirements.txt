@@ -7,8 +7,7 @@ langgraph
 langchain
 qdrant-client
 langchain-community
-sentence-transformers
-fastembed
+
 langchain-google-genai
 motor
 langchain-qdrant
