@@ -57,10 +57,24 @@ async def chat_endpoint(request: ChatRequest):
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
         
+        # 4. Handle History (Fetch before generating response)
+        db = get_database()
+        session_id = request.session_id
+        
+        chat_history_str = ""
+        if session_id:
+            history_msgs = await get_chat_history(db, session_id, limit=5)
+            for msg in history_msgs:
+                role = "User" if msg["role"] == "user" else "Assistant"
+                chat_history_str += f"{role}: {msg['content']}\n"
+        
         prompt = ChatPromptTemplate.from_template("""You are a helpful AI assistant for a portfolio website.
-Use the following pieces of retrieved context to answer the question.
+Use the following pieces of retrieved context and chat history to answer the question.
 If you don't know the answer, say that you don't know.
 Keep the answer professional and concise.
+
+Chat History:
+{chat_history}
 
 Context:
 {context}
@@ -69,18 +83,18 @@ Question:
 {input}""")
         
         rag_chain = (
-            {"context": retriever | format_docs, "input": RunnablePassthrough()}
+            {
+                "context": retriever | format_docs, 
+                "chat_history": lambda _: chat_history_str,
+                "input": RunnablePassthrough()
+            }
             | prompt
             | llm
             | StrOutputParser()
         )
         
-        # 4. Handle History
-        db = get_database()
-        session_id = request.session_id
-        
         # 5. Run Chain
-        response = rag_chain.invoke(request.message)
+        response = await rag_chain.ainvoke(request.message)
         
         # 6. Save History
         if session_id:
