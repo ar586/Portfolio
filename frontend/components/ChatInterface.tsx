@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, Loader2, Sparkles, X } from 'lucide-react';
 import Link from 'next/link';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
 interface Message {
     id: string;
     role: 'user' | 'assistant';
@@ -44,7 +46,7 @@ export default function ChatInterface() {
 
     const fetchHistory = async (sid: string) => {
         try {
-            const res = await fetch(`http://localhost:8000/api/v1/chat/history/${sid}`);
+            const res = await fetch(`${API_BASE_URL}/chat/history/${sid}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.history && data.history.length > 0) {
@@ -94,7 +96,7 @@ export default function ChatInterface() {
         setMessages(prev => [...prev, placeholderMessage]);
 
         try {
-            const response = await fetch('http://localhost:8000/api/v1/chat/query', {
+            const response = await fetch(`${API_BASE_URL}/chat/query`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
