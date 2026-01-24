@@ -61,7 +61,7 @@ export default function Hobbies() {
                     </p>
                 </motion.div>
 
-                <div className="flex flex-col lg:flex-row gap-4 h-[600px] lg:h-[400px]">
+                <div className="flex flex-col lg:flex-row gap-4 h-[850px] lg:h-[400px]">
                     {hobbies.map((hobby, index) => (
                         <motion.div
                             key={hobby.name}
@@ -105,7 +105,7 @@ export default function Hobbies() {
 
                             <div className="relative z-10 h-full">
                                 {/* Centered Icon & Title */}
-                                <div className={`absolute inset-0 flex flex-col ${hoveredHobby === index ? 'justify-start pt-8 md:pt-16' : 'justify-center'} items-center pointer-events-none p-6 transition-all duration-500 ease-out`}>
+                                <div className={`absolute inset-0 flex flex-col ${hoveredHobby === index ? 'justify-start pt-6 md:pt-16' : 'justify-center'} items-center pointer-events-none p-6 transition-all duration-500 ease-out`}>
                                     <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${hobby.color} flex items-center justify-center mb-4 shadow-lg`}>
                                         <hobby.icon className="w-7 h-7 text-white" />
                                     </div>
