@@ -12,3 +12,4 @@ fastembed
 langchain-google-genai
 motor
 langchain-qdrant
+langchain-qdrant

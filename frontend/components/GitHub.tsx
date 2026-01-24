@@ -18,6 +18,8 @@ interface Repository {
     forks_count: number;
     language: string;
     html_url: string;
+    updated_at: string;
+    topics?: string[];
 }
 
 interface GitHubEvent {
@@ -38,8 +40,9 @@ export default function GitHub() {
     const [expanded, setExpanded] = useState(false);
     const [allRepos, setAllRepos] = useState<Repository[]>([]);
     const [events, setEvents] = useState<GitHubEvent[]>([]);
-    const [heatmap, setHeatmap] = useState<any[] | null>(null); // Array of {date, count, level}
+    const [heatmap, setHeatmap] = useState<any[] | null>(null);
     const [detailsLoading, setDetailsLoading] = useState(false);
+    const [sortBy, setSortBy] = useState<'stars' | 'updated'>('stars');
 
     useEffect(() => {
         Promise.all([
@@ -62,18 +65,15 @@ export default function GitHub() {
         if (!expanded && allRepos.length === 0) {
             setDetailsLoading(true);
             Promise.all([
-                api.getGitHubRepos(), // Use cached repos (contains all)
+                api.getGitHubRepos(),
                 api.getGitHubEvents(),
                 api.getGitHubHeatmap()
             ])
                 .then(([reposRes, eventsRes, heatmapRes]) => {
                     setAllRepos(reposRes.data.repos || []);
                     setEvents(eventsRes.data || []);
-
-                    // Access nested data: response.data -> { data: { contributions: [] } }
                     const contribs = heatmapRes.data?.data?.contributions || [];
                     setHeatmap(contribs);
-
                     setDetailsLoading(false);
                 })
                 .catch(err => {
@@ -88,11 +88,53 @@ export default function GitHub() {
         return type.replace('Event', '').replace(/([A-Z])/g, ' $1').trim();
     };
 
+    const getLanguageStats = () => {
+        const langCounts: Record<string, number> = {};
+        allRepos.forEach(repo => {
+            if (repo.language) {
+                langCounts[repo.language] = (langCounts[repo.language] || 0) + 1;
+            }
+        });
+        const total = Object.values(langCounts).reduce((a, b) => a + b, 0);
+        return Object.entries(langCounts)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5)
+            .map(([lang, count]) => ({
+                name: lang,
+                count,
+                percentage: Math.round((count / total) * 100),
+                color: getLanguageColor(lang)
+            }));
+    };
+
+    const getLanguageColor = (lang: string) => {
+        const colors: Record<string, string> = {
+            'TypeScript': '#3178c6',
+            'JavaScript': '#f1e05a',
+            'Python': '#3572A5',
+            'HTML': '#e34c26',
+            'CSS': '#563d7c',
+            'Svelte': '#ff3e00',
+            'Vue': '#41b883',
+            'Rust': '#dea584',
+            'Go': '#00ADD8'
+        };
+        return colors[lang] || '#8b949e';
+    };
+
+    const getSortedRepos = () => {
+        return [...allRepos].sort((a, b) => {
+            if (sortBy === 'stars') {
+                return b.stargazers_count - a.stargazers_count;
+            }
+            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        });
+    };
+
     // Helper to render heatmap grid (Last 12 months)
     const renderHeatmap = () => {
         if (!heatmap || heatmap.length === 0) return null;
 
-        // GitHub colors (Level 0-4)
         const getLevelColor = (level: number) => {
             switch (level) {
                 case 0: return 'bg-white/5';
@@ -104,21 +146,14 @@ export default function GitHub() {
             }
         };
 
-        // We need to map the flat list to a 7x52 grid aligned by week
-        // The API returns a sorted list of days. We just need to slice the last 365 days.
         const today = new Date();
         const oneYearAgo = new Date(today);
         oneYearAgo.setDate(today.getDate() - 365);
 
-        // Filter contributions for the last year
-        // And ensure we align to weeks (Sunday start)
-
-        // Find the start date (previous Sunday from oneYearAgo)
         const dayOfWeek = oneYearAgo.getDay();
         const startDate = new Date(oneYearAgo);
         startDate.setDate(startDate.getDate() - dayOfWeek);
 
-        // Create map for easy lookup
         const contribMap = new Map();
         heatmap.forEach(day => {
             contribMap.set(day.date, day);
@@ -128,7 +163,6 @@ export default function GitHub() {
         let currentWeek = [];
         const currentDate = new Date(startDate);
 
-        // Generate weeks until today
         while (currentDate <= today || currentWeek.length > 0) {
             if (currentDate > today && currentWeek.length === 7) break;
 
@@ -149,7 +183,6 @@ export default function GitHub() {
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        // Push last partial week
         if (currentWeek.length > 0) {
             while (currentWeek.length < 7) {
                 currentWeek.push(null);
@@ -214,18 +247,15 @@ export default function GitHub() {
                     </div>
                 ) : (
                     <>
-                        {/* Unified GitHub Card */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
                             className="max-w-4xl mx-auto bg-[#0d1117] rounded-3xl border border-[#30363d] overflow-hidden mb-12 shadow-2xl group relative"
                         >
-                            {/* Decorative Grid Background - Subtle */}
                             <div className="absolute inset-0 bg-[url('https://github.githubassets.com/images/modules/site/home/hero-glow.svg')] bg-cover opacity-20 pointer-events-none"></div>
 
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
-                                {/* Left Column: Main Stats */}
                                 <div className="md:col-span-5 p-8 md:p-12 flex flex-col justify-center items-center md:items-start border-b md:border-b-0 md:border-r border-[#30363d] bg-[#0d1117]/50 relative z-10">
                                     <div className="mb-6 p-4 rounded-full bg-white/5 border border-[#30363d]">
                                         <Book className="w-12 h-12 text-white" />
@@ -243,7 +273,6 @@ export default function GitHub() {
                                     </a>
                                 </div>
 
-                                {/* Right Column: Top 3 Repos */}
                                 <div className="md:col-span-7 p-8 md:p-12 bg-[#0d1117] relative z-10">
                                     <div className="flex items-center gap-2 mb-6 text-gray-200">
                                         <Star className="w-5 h-5 text-[#e3b341]" />
@@ -274,13 +303,17 @@ export default function GitHub() {
                                                 <div className="flex items-center gap-3 text-xs text-[#8b949e]">
                                                     {repo.language && (
                                                         <span className="flex items-center gap-1">
-                                                            <span className="w-2 h-2 rounded-full bg-[#f1e05a]"></span>
+                                                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getLanguageColor(repo.language) }}></span>
                                                             {repo.language}
                                                         </span>
                                                     )}
                                                     <span className="flex items-center gap-1">
                                                         <GitFork className="w-3 h-3" />
                                                         {repo.forks_count}
+                                                    </span>
+                                                    <span className="flex items-center gap-1">
+                                                        <Clock className="w-3 h-3" />
+                                                        {new Date(repo.updated_at).toLocaleDateString()}
                                                     </span>
                                                 </div>
                                             </a>
@@ -290,7 +323,6 @@ export default function GitHub() {
                             </div>
                         </motion.div>
 
-                        {/* Expand Button */}
                         <div className="flex justify-center mb-4">
                             <button
                                 onClick={toggleExpand}
@@ -303,7 +335,6 @@ export default function GitHub() {
                             </button>
                         </div>
 
-                        {/* Expanded Content */}
                         <AnimatePresence>
                             {expanded && (
                                 <motion.div
@@ -318,14 +349,48 @@ export default function GitHub() {
                                         </div>
                                     ) : (
                                         <div className="bg-background/50 rounded-2xl p-6 border border-white/5 space-y-8">
-                                            {/* Contribution Heatmap */}
-                                            <div>
-                                                <div className="flex items-center gap-2 mb-4 text-green-400">
-                                                    <Calendar className="w-5 h-5" />
-                                                    <h3 className="text-lg font-semibold">Contribution Map (Last 12 Months)</h3>
+                                            {/* Top Section: Languages and Contribution Map */}
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                {/* Language Distribution */}
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-4 text-purple-400">
+                                                        <Book className="w-5 h-5" />
+                                                        <h3 className="text-lg font-semibold">Languages</h3>
+                                                    </div>
+                                                    <div className="p-4 bg-white/5 rounded-xl">
+                                                        <div className="space-y-3">
+                                                            {getLanguageStats().map((lang) => (
+                                                                <div key={lang.name}>
+                                                                    <div className="flex justify-between text-sm mb-1">
+                                                                        <span className="text-gray-200">{lang.name}</span>
+                                                                        <span className="text-gray-400">{lang.percentage}%</span>
+                                                                    </div>
+                                                                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                                                                        <motion.div
+                                                                            initial={{ width: 0 }}
+                                                                            animate={{ width: `${lang.percentage}%` }}
+                                                                            className="h-full rounded-full"
+                                                                            style={{ backgroundColor: lang.color }}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                            {getLanguageStats().length === 0 && (
+                                                                <p className="text-gray-500 text-sm">No language data available.</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div className="p-4 bg-white/5 rounded-xl overflow-x-auto">
-                                                    {renderHeatmap()}
+
+                                                {/* Contribution Heatmap */}
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-4 text-green-400">
+                                                        <Calendar className="w-5 h-5" />
+                                                        <h3 className="text-lg font-semibold">Contribution Map</h3>
+                                                    </div>
+                                                    <div className="p-4 bg-white/5 rounded-xl overflow-x-auto">
+                                                        {renderHeatmap()}
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -335,42 +400,59 @@ export default function GitHub() {
                                                     <Clock className="w-5 h-5" />
                                                     <h3 className="text-lg font-semibold">Recent Contributions</h3>
                                                 </div>
-                                                <div className="space-y-3">
-                                                    {events.slice(0, 5).map((event) => (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    {events.slice(0, 6).map((event) => (
                                                         <a
                                                             key={event.id}
                                                             href={`https://github.com/${event.repo.name}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group"
+                                                            className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group border border-white/5 hover:border-blue-500/30"
                                                         >
                                                             <div className="flex items-center gap-3">
                                                                 <span className="px-2 py-1 bg-white/10 rounded text-xs text-gray-300 font-mono">
                                                                     {formatEventType(event.type)}
                                                                 </span>
-                                                                <span className="font-medium text-gray-200 group-hover:text-white">
+                                                                <span className="font-medium text-gray-200 group-hover:text-blue-400 transition-colors truncate max-w-[150px] md:max-w-[200px]">
                                                                     {event.repo.name}
                                                                 </span>
                                                             </div>
-                                                            <span className="text-xs text-gray-500 font-mono">
+                                                            <span className="text-xs text-gray-500 font-mono whitespace-nowrap ml-2">
                                                                 {new Date(event.created_at).toLocaleDateString()}
                                                             </span>
                                                         </a>
                                                     ))}
                                                     {events.length === 0 && (
-                                                        <p className="text-gray-500 text-center py-4">No recent activity found.</p>
+                                                        <p className="text-gray-500 text-center py-4 col-span-full">No recent activity found.</p>
                                                     )}
                                                 </div>
                                             </div>
 
                                             {/* All Repositories */}
                                             <div>
-                                                <div className="flex items-center gap-2 mb-4 text-purple-400">
-                                                    <Book className="w-5 h-5" />
-                                                    <h3 className="text-lg font-semibold">All Repositories ({allRepos.length})</h3>
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <div className="flex items-center gap-2 text-purple-400">
+                                                        <Book className="w-5 h-5" />
+                                                        <h3 className="text-lg font-semibold">All Repositories ({allRepos.length})</h3>
+                                                    </div>
+                                                    <div className="flex bg-white/5 rounded-lg p-1">
+                                                        <button
+                                                            onClick={() => setSortBy('stars')}
+                                                            className={`px-3 py-1 rounded text-xs font-medium transition-all ${sortBy === 'stars' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                        >
+                                                            Stars
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setSortBy('updated')}
+                                                            className={`px-3 py-1 rounded text-xs font-medium transition-all ${sortBy === 'updated' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                        >
+                                                            Updated
+                                                        </button>
+                                                    </div>
                                                 </div>
+
                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                                                    {allRepos.map((repo) => (
+                                                    {getSortedRepos().map((repo) => (
                                                         <a
                                                             key={repo.name}
                                                             href={repo.html_url}
@@ -378,22 +460,45 @@ export default function GitHub() {
                                                             rel="noopener noreferrer"
                                                             className="block p-4 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 hover:border-purple-500/30 transition-all"
                                                         >
-                                                            <h4 className="font-bold text-gray-200 mb-1 truncate">{repo.name}</h4>
-                                                            <p className="text-xs text-gray-400 line-clamp-2 mb-2 h-8">
+                                                            <div className="flex justify-between items-start mb-2">
+                                                                <h4 className="font-bold text-gray-200 truncate pr-2 flex-1">{repo.name}</h4>
+                                                                {repo.language && (
+                                                                    <div
+                                                                        className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                                                                        style={{ backgroundColor: getLanguageColor(repo.language) }}
+                                                                        title={repo.language}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                            <p className="text-xs text-gray-400 line-clamp-2 mb-3 h-8">
                                                                 {repo.description || "No description provided."}
                                                             </p>
-                                                            <div className="flex items-center gap-3 text-xs text-gray-500">
-                                                                {repo.language && (
+                                                            <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
+                                                                <div className="flex items-center gap-3">
                                                                     <span className="flex items-center gap-1">
-                                                                        <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                                                                        {repo.language}
+                                                                        <Star className="w-3 h-3" />
+                                                                        {repo.stargazers_count}
                                                                     </span>
-                                                                )}
-                                                                <span className="flex items-center gap-1">
-                                                                    <Star className="w-3 h-3" />
-                                                                    {repo.stargazers_count}
+                                                                    <span className="flex items-center gap-1">
+                                                                        <GitFork className="w-3 h-3" />
+                                                                        {repo.forks_count}
+                                                                    </span>
+                                                                </div>
+                                                                <span className="text-[10px]">
+                                                                    {new Date(repo.updated_at).toLocaleDateString()}
                                                                 </span>
                                                             </div>
+
+                                                            {/* Topics/Tags - Simplified */}
+                                                            {repo.topics && repo.topics.length > 0 && (
+                                                                <div className="flex flex-wrap gap-1 mt-3">
+                                                                    {repo.topics.slice(0, 3).map(topic => (
+                                                                        <span key={topic} className="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-gray-400">
+                                                                            {topic}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            )}
                                                         </a>
                                                     ))}
                                                 </div>
