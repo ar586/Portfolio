@@ -19,15 +19,20 @@ export default function ChatInterface() {
         {
             id: '1',
             role: 'assistant',
-            content: "Hello! I'm your AI portfolio assistant. I can tell you about my projects, skills, and experience. Ask me anything!",
+            content: "Hello! I am your automated correspondent. I am equipped to relay information regarding Aryan's engineering projects, technical proficiencies, and professional experience. Send a dispatch to begin.",
             timestamp: new Date()
         }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     const [sessionId, setSessionId] = useState<string | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const scrollToBottom = () => {
         if (scrollRef.current) {
@@ -60,7 +65,6 @@ export default function ChatInterface() {
                         timestamp: new Date(msg.timestamp)
                     }));
                     setMessages(prev => {
-                        // Keep only the welcome message (first one) and append history
                         const welcomeMsg = prev[0];
                         return [welcomeMsg, ...formattedMessages];
                     });
@@ -68,8 +72,6 @@ export default function ChatInterface() {
             }
         } catch (err) {
             console.error("Failed to fetch history", err);
-            // If fetching fails (e.g., invalid session), maybe clear localStorage?
-            // localStorage.removeItem('chat_session_id'); 
         }
     };
 
@@ -88,7 +90,6 @@ export default function ChatInterface() {
         setInput('');
         setIsLoading(true);
 
-        // Create a placeholder for the bot message
         const botMessageId = (Date.now() + 1).toString();
         const placeholderMessage: Message = {
             id: botMessageId,
@@ -156,7 +157,7 @@ export default function ChatInterface() {
             console.error('Chat error:', error);
             setMessages(prev => prev.map(msg =>
                 msg.id === botMessageId
-                    ? { ...msg, content: "I apologize, but I'm having trouble connecting to the server right now. Please try again later." }
+                    ? { ...msg, content: "Dispatch failure. The telegraph line appears to be disconnected or experiencing interference. Please try your request again." }
                     : msg
             ));
         } finally {
@@ -165,24 +166,35 @@ export default function ChatInterface() {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto h-[80vh] md:h-[700px] flex flex-col bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden text-white/90">
+        <div className="w-full max-w-4xl mx-auto h-[80vh] md:h-[750px] flex flex-col bg-primary border-4 border-text-main shadow-[8px_8px_0px_#000] overflow-hidden text-text-main font-sans transform transition-all">
             {/* Header */}
-            <div className="p-4 md:p-6 border-b border-white/10 bg-white/5 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center shadow-lg">
-                            <Bot className="w-7 h-7 text-white" />
-                        </div>
-                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0a0a0a] rounded-full"></span>
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                            AI Assistant <Sparkles className="w-4 h-4 text-yellow-400" />
-                        </h2>
-                        <p className="text-sm text-white/50">Ask about my skills, projects, and more</p>
+            <div className="p-4 md:p-6 border-b-4 border-text-main bg-surface flex items-center justify-between gap-4 relative">
+                {/* Vintage stamp detail */}
+                <div className="absolute top-2 right-16 border-2 border-text-main/20 rotate-12 p-1 hidden md:block">
+                    <div className="border border-text-main/20 text-[8px] font-bold text-text-main/40 uppercase tracking-widest px-2 py-1">
+                        Approved Comm
                     </div>
                 </div>
-                <Link href="/" className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-white/50 hover:text-white" aria-label="Close chat">
+
+                <div className="flex items-center gap-4 z-10">
+                    <div className="relative">
+                        <div className="w-12 h-12 border-2 border-text-main bg-primary flex items-center justify-center shadow-[2px_2px_0px_#000]">
+                            <Bot className="w-7 h-7 text-text-main" />
+                        </div>
+                        <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-primary border-2 border-text-main flex items-center justify-center">
+                            <span className="w-1.5 h-1.5 bg-text-main rounded-none animate-pulse"></span>
+                        </span>
+                    </div>
+                    <div>
+                        <h2 className="text-xl md:text-2xl font-black font-serif uppercase tracking-tighter text-text-main flex items-center gap-2">
+                            Telegraph Assistant
+                        </h2>
+                        <p className="text-[10px] md:text-xs font-bold font-sans uppercase tracking-[0.2em] text-accent mt-1">
+                            Direct Line to Archives
+                        </p>
+                    </div>
+                </div>
+                <Link href="/" className="p-2 border-2 border-transparent hover:border-text-main transition-colors text-accent hover:text-text-main bg-primary z-10" aria-label="Close exchange">
                     <X className="w-6 h-6" />
                 </Link>
             </div>
@@ -190,31 +202,36 @@ export default function ChatInterface() {
             {/* Messages Area */}
             <div
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar scroll-smooth"
+                className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 custom-scrollbar scroll-smooth bg-primary relative"
             >
+                {/* Background watermark/texture */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMCIvPjxsaW5lIHgxPSIwIiB5MT0iNCIgeDI9IjQiIHkyPSIwIiBzdHJva2U9IiMxMTEiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')] bg-repeat z-0"></div>
+
                 {messages.map((message) => (
                     <motion.div
                         key={message.id}
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                        className={`flex relative z-10 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
-                        <div className={`flex items-start gap-3 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${message.role === 'user'
-                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                                }`}>
-                                {message.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+                        <div className={`flex items-start gap-4 max-w-[85%] md:max-w-[75%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+
+                            {/* Avatar */}
+                            <div className={`w-8 h-8 flex items-center justify-center shrink-0 border-2 border-text-main shadow-[2px_2px_0px_#000] bg-surface`}>
+                                {message.role === 'user' ? <User className="w-5 h-5 text-text-main" /> : <Bot className="w-5 h-5 text-text-main" />}
                             </div>
 
-                            <div className={`p-4 rounded-2xl ${message.role === 'user'
-                                ? 'bg-blue-600/20 border border-blue-500/30 text-blue-50 rounded-tr-sm'
-                                : 'bg-white/10 border border-white/10 text-gray-100 rounded-tl-sm'
-                                }`}>
-                                <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                                <span className="text-xs text-white/30 mt-2 block">
-                                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
+                            {/* Message Bubble */}
+                            <div className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}>
+                                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent mb-1 px-1 min-h-[16px]">
+                                    {message.role === 'user' ? 'Sender' : 'Operator'} {isMounted ? `— ${message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
+                                </div>
+                                <div className={`p-4 border-2 border-text-main font-serif text-sm md:text-base leading-relaxed ${message.role === 'user'
+                                    ? 'bg-text-main text-primary rounded-bl-xl rounded-tl-xl rounded-tr-sm shadow-[4px_4px_0px_#888]'
+                                    : 'bg-surface text-text-main rounded-br-xl rounded-tr-xl rounded-tl-sm shadow-[4px_4px_0px_#000]'
+                                    }`}>
+                                    <p className="whitespace-pre-wrap">{message.content}</p>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
@@ -224,15 +241,20 @@ export default function ChatInterface() {
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex justify-start"
+                        className="flex justify-start relative z-10"
                     >
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
-                                <Bot className="w-5 h-5" />
+                        <div className="flex items-start gap-4 max-w-[85%]">
+                            <div className="w-8 h-8 flex items-center justify-center shrink-0 border-2 border-text-main shadow-[2px_2px_0px_#000] bg-surface">
+                                <Bot className="w-5 h-5 text-text-main" />
                             </div>
-                            <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-2">
-                                <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
-                                <span className="text-sm text-white/50">Thinking...</span>
+                            <div className="flex flex-col items-start">
+                                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent mb-1 px-1">
+                                    Operator
+                                </div>
+                                <div className="p-4 border-2 border-text-main bg-surface rounded-br-xl rounded-tr-xl rounded-tl-sm shadow-[4px_4px_0px_#000] flex items-center gap-3">
+                                    <Loader2 className="w-4 h-4 animate-spin text-text-main" />
+                                    <span className="font-serif text-sm font-bold italic uppercase tracking-wider">Decoding incoming signal...</span>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
@@ -241,24 +263,28 @@ export default function ChatInterface() {
             </div>
 
             {/* Input Area */}
-            <div className="p-6 bg-white/5 border-t border-white/10 backdrop-blur-lg">
-                <form onSubmit={handleSubmit} className="relative">
+            <div className="p-4 md:p-6 bg-surface border-t-4 border-text-main relative z-20">
+                <form onSubmit={handleSubmit} className="relative flex items-center gap-2">
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Type your message..."
-                        className="w-full bg-black/20 text-white placeholder-white/30 border border-white/10 rounded-xl py-4 pl-5 pr-14 focus:outline-none focus:border-purple-500/50 focus:bg-black/30 transition-all shadow-inner"
+                        placeholder="Draft your dispatch here..."
+                        className="w-full bg-primary text-text-main placeholder-accent border-2 border-text-main py-4 pl-4 pr-16 focus:outline-none focus:ring-2 focus:ring-text-main font-serif shadow-[inset_2px_2px_0px_rgba(0,0,0,0.1)] transition-all"
                         disabled={isLoading}
                     />
                     <button
                         type="submit"
                         disabled={!input.trim() || isLoading}
-                        className="absolute right-2 top-2 p-2 bg-purple-600 rounded-lg text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95"
+                        className="absolute right-2 top-2 bottom-2 px-4 bg-text-main border-2 border-text-main text-primary hover:bg-surface hover:text-text-main disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold tracking-[0.1em] uppercase text-xs flex items-center justify-center"
                     >
-                        <Send className="w-5 h-5" />
+                        <span className="hidden md:inline mr-2">Send</span>
+                        <Send className="w-4 h-4" />
                     </button>
                 </form>
+                <div className="text-center mt-3 text-[9px] font-bold tracking-[0.3em] uppercase text-accent border-t border-text-main/20 pt-2">
+                    Transmission secured via AES-256 standard
+                </div>
             </div>
         </div>
     );

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, GitFork, Users, ChevronDown, ChevronUp, Calendar, Clock, Book, ExternalLink } from 'lucide-react';
+import { Star, GitFork, ChevronDown, ChevronUp, Calendar, Clock, Book, ExternalLink } from 'lucide-react';
 import api from '../lib/api';
 
 interface GitHubStats {
@@ -53,14 +53,13 @@ export default function GitHub() {
                 setStats(statsRes.data);
                 let sortedRepos = reposRes.data.repos.sort((a: Repository, b: Repository) => b.stargazers_count - a.stargazers_count);
 
-                // Pin 'dastabbej' to top
                 const pinnedRepoIndex = sortedRepos.findIndex((r: Repository) => r.name.toLowerCase().includes('dastabbej'));
                 if (pinnedRepoIndex > -1) {
                     const pinnedRepo = sortedRepos.splice(pinnedRepoIndex, 1)[0];
                     sortedRepos.unshift(pinnedRepo);
                 }
 
-                setRepos(sortedRepos.slice(0, 3)); // Top 3 repos
+                setRepos(sortedRepos.slice(0, 3));
                 setLoading(false);
             })
             .catch(err => {
@@ -111,23 +110,7 @@ export default function GitHub() {
                 name: lang,
                 count,
                 percentage: Math.round((count / total) * 100),
-                color: getLanguageColor(lang)
             }));
-    };
-
-    const getLanguageColor = (lang: string) => {
-        const colors: Record<string, string> = {
-            'TypeScript': '#3178c6',
-            'JavaScript': '#f1e05a',
-            'Python': '#3572A5',
-            'HTML': '#e34c26',
-            'CSS': '#563d7c',
-            'Svelte': '#ff3e00',
-            'Vue': '#41b883',
-            'Rust': '#dea584',
-            'Go': '#00ADD8'
-        };
-        return colors[lang] || '#8b949e';
     };
 
     const getSortedRepos = () => {
@@ -139,18 +122,18 @@ export default function GitHub() {
         });
     };
 
-    // Helper to render heatmap grid (Last 12 months)
     const renderHeatmap = () => {
         if (!heatmap || heatmap.length === 0) return null;
 
         const getLevelColor = (level: number) => {
+            // Strict newspaper ink scale
             switch (level) {
-                case 0: return 'bg-white/5';
-                case 1: return 'bg-green-900';
-                case 2: return 'bg-green-700';
-                case 3: return 'bg-green-500';
-                case 4: return 'bg-green-300';
-                default: return 'bg-white/5';
+                case 0: return 'bg-surface border border-text-main/10';
+                case 1: return 'bg-text-main/20 border border-text-main/30';
+                case 2: return 'bg-text-main/50 border border-text-main/60';
+                case 3: return 'bg-text-main/80 border border-text-main';
+                case 4: return 'bg-text-main border border-text-main';
+                default: return 'bg-surface border border-text-main/10';
             }
         };
 
@@ -199,16 +182,16 @@ export default function GitHub() {
         }
 
         return (
-            <div className="flex flex-col gap-1 overflow-x-auto pb-2">
-                <div className="flex gap-[3px]">
+            <div className="flex flex-col gap-1 overflow-x-auto pb-4">
+                <div className="flex gap-[2px]">
                     {weeks.map((week, wIndex) => (
-                        <div key={wIndex} className="flex flex-col gap-[3px]">
+                        <div key={wIndex} className="flex flex-col gap-[2px]">
                             {week.map((day, dIndex) => {
                                 if (!day) return <div key={dIndex} className="w-3 h-3" />;
                                 return (
                                     <div
                                         key={dIndex}
-                                        className={`w-3 h-3 rounded-[2px] ${day.color} hover:ring-1 hover:ring-white/50 transition-all cursor-default`}
+                                        className={`w-3 h-3 rounded-none ${day.color} hover:ring-2 hover:ring-text-main hover:z-10 relative cursor-crosshair transition-none`}
                                         title={`${day.date}: ${day.count} contributions`}
                                     />
                                 );
@@ -216,133 +199,124 @@ export default function GitHub() {
                         </div>
                     ))}
                 </div>
-                <div className="flex justify-between text-xs text-gray-500 px-1 mt-1">
-                    <span>Less</span>
+                <div className="flex justify-between text-[10px] tracking-[0.2em] font-bold uppercase text-text-main px-1 mt-3">
+                    <span>Low Activity</span>
                     <div className="flex gap-1 items-center">
-                        <div className="w-3 h-3 bg-white/5 rounded-[2px]" />
-                        <div className="w-3 h-3 bg-green-900 rounded-[2px]" />
-                        <div className="w-3 h-3 bg-green-700 rounded-[2px]" />
-                        <div className="w-3 h-3 bg-green-500 rounded-[2px]" />
-                        <div className="w-3 h-3 bg-green-300 rounded-[2px]" />
+                        <div className="w-3 h-3 bg-surface border border-text-main/10" />
+                        <div className="w-3 h-3 bg-text-main/20 border border-text-main/30" />
+                        <div className="w-3 h-3 bg-text-main/50 border border-text-main/60" />
+                        <div className="w-3 h-3 bg-text-main/80 border border-text-main" />
+                        <div className="w-3 h-3 bg-text-main border border-text-main" />
                     </div>
-                    <span>More</span>
+                    <span>High Activity</span>
                 </div>
             </div>
         );
     };
 
     return (
-        <section id="github" className="min-h-screen py-12 md:py-20">
-            <div className="container mx-auto px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-16"
-                >
-                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                        GitHub Activity
+        <section id="github" className="py-12 md:py-20 border-b-4 border-text-main bg-primary text-text-main">
+            <div className="container max-w-6xl mx-auto px-4 md:px-8">
+                {/* Header */}
+                <div className="flex flex-col items-center mb-10 border-b-[3px] border-text-main pb-4">
+                    <h2 className="text-4xl md:text-5xl lg:text-[4rem] font-black font-serif uppercase tracking-tight text-center leading-none">
+                        Market Data: Open Source
                     </h2>
-                    <p className="text-gray-400 text-lg">
-                        My open source contributions
+                    <p className="mt-4 text-[10px] md:text-xs tracking-[0.3em] font-sans font-bold uppercase text-center border-y border-text-main py-2 inline-block px-12">
+                        Quarterly Contributions & Statistics
                     </p>
-                </motion.div>
+                </div>
 
                 {loading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-github"></div>
+                    <div className="flex justify-center items-center h-64 font-serif italic text-xl">
+                        Compiling market data...
                     </div>
                 ) : (
                     <>
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            className="max-w-4xl mx-auto bg-[#0d1117] rounded-3xl border border-[#30363d] overflow-hidden mb-12 shadow-2xl group relative"
-                        >
-                            <div className="absolute inset-0 bg-[url('https://github.githubassets.com/images/modules/site/home/hero-glow.svg')] bg-cover opacity-20 pointer-events-none"></div>
+                        {/* Highlights Grid */}
+                        <div className="border-4 border-text-main bg-surface p-1 shadow-[6px_6px_0px_#111] mb-12">
+                            <div className="border border-text-main bg-primary p-6 md:p-10">
+                                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 relative">
 
-                            <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
-                                <div className="md:col-span-5 p-8 md:p-12 flex flex-col justify-center items-center md:items-start border-b md:border-b-0 md:border-r border-[#30363d] bg-[#0d1117]/50 relative z-10">
-                                    <div className="mb-6 p-4 rounded-full bg-white/5 border border-[#30363d]">
-                                        <Book className="w-12 h-12 text-white" />
-                                    </div>
-                                    <h3 className="text-gray-400 text-lg font-medium mb-1">Total Repositories</h3>
-                                    <div className="text-6xl md:text-7xl font-bold text-white tracking-tight mb-4">
-                                        {stats?.public_repos || 0}
-                                    </div>
-                                    <a
-                                        href="https://github.com/ar586?tab=repositories"
-                                        target="_blank"
-                                        className="text-[#58a6ff] hover:text-[#58a6ff] hover:underline text-sm font-medium flex items-center gap-1"
-                                    >
-                                        View Profile <ExternalLink className="w-3 h-3" />
-                                    </a>
-                                </div>
+                                    {/* Left: Ticker/Overview */}
+                                    <div className="text-center md:text-left flex flex-col items-center justify-center md:items-start md:col-span-5 md:border-r-2 border-text-main md:pr-12 border-dashed">
+                                        <div className="flex items-center gap-3 mb-6 border-2 border-text-main p-3 shadow-[2px_2px_0px_#111]">
+                                            <Book className="w-6 h-6" />
+                                            <span className="text-sm font-bold tracking-[0.2em] uppercase">Total Assets</span>
+                                        </div>
 
-                                <div className="md:col-span-7 p-8 md:p-12 bg-[#0d1117] relative z-10">
-                                    <div className="flex items-center gap-2 mb-6 text-gray-200">
-                                        <Star className="w-5 h-5 text-[#e3b341]" />
-                                        <h3 className="text-lg font-bold">Top Repositories</h3>
+                                        <div className="text-7xl md:text-[6rem] font-black font-serif tracking-tighter mb-4 leading-none">
+                                            {stats?.public_repos || 0}
+                                        </div>
+                                        <div className="text-[10px] font-bold tracking-[0.3em] uppercase w-full text-center md:text-left border-y border-text-main py-2 mb-6">
+                                            Public Repositories
+                                        </div>
+                                        <a
+                                            href="https://github.com/ar586?tab=repositories"
+                                            target="_blank"
+                                            className="font-bold text-xs tracking-widest uppercase flex items-center gap-2 hover:underline group"
+                                        >
+                                            Inspect Full Ledger <ExternalLink className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                                        </a>
                                     </div>
 
-                                    <div className="space-y-4">
-                                        {repos.slice(0, 3).map((repo) => (
-                                            <a
-                                                key={repo.name}
-                                                href={repo.html_url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="block p-4 rounded-xl border border-[#30363d] bg-[#161b22] hover:border-[#8b949e] transition-all group/repo"
-                                            >
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-semibold text-[#58a6ff] group-hover/repo:underline truncate pr-4">
-                                                        {repo.name}
-                                                    </h4>
-                                                    <div className="flex items-center gap-1 text-gray-400 text-xs">
-                                                        <Star className="w-3 h-3" />
-                                                        <span>{repo.stargazers_count}</span>
+                                    {/* Right: Top Performing Assets */}
+                                    <div className="flex flex-col justify-center gap-6 md:col-span-7">
+                                        <div className="flex items-center gap-3 mb-2 border-b-2 border-text-main pb-3">
+                                            <Star className="w-5 h-5 fill-text-main" />
+                                            <h3 className="text-sm tracking-[0.2em] uppercase font-black">Top Performing Assets</h3>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            {repos.slice(0, 3).map((repo) => (
+                                                <a
+                                                    key={repo.name}
+                                                    href={repo.html_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="block p-4 border border-text-main bg-surface hover:bg-text-main hover:text-primary transition-all group"
+                                                >
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <h4 className="font-serif font-black text-xl truncate pr-4 uppercase">
+                                                            {repo.name}
+                                                        </h4>
+                                                        <div className="flex items-center gap-1 font-bold text-sm">
+                                                            <Star className="w-3.5 h-3.5 fill-current" />
+                                                            <span>{repo.stargazers_count}</span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <p className="text-xs text-gray-400 line-clamp-3 mb-3">
-                                                    {repo.description || 'No description available'}
-                                                </p>
-                                                <div className="flex items-center gap-3 text-xs text-[#8b949e]">
-                                                    {repo.language && (
+                                                    <p className="text-sm font-serif italic mb-4 line-clamp-2">
+                                                        {repo.description || 'No description filed.'}
+                                                    </p>
+                                                    <div className="flex items-center gap-6 font-sans text-[10px] font-bold tracking-[0.2em] uppercase border-t border-current/30 pt-3">
+                                                        {repo.language && (
+                                                            <span>Lang: {repo.language}</span>
+                                                        )}
                                                         <span className="flex items-center gap-1">
-                                                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getLanguageColor(repo.language) }}></span>
-                                                            {repo.language}
+                                                            <GitFork className="w-3 h-3" />
+                                                            {repo.forks_count}
                                                         </span>
-                                                    )}
-                                                    <span className="flex items-center gap-1">
-                                                        <GitFork className="w-3 h-3" />
-                                                        {repo.forks_count}
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        <Clock className="w-3 h-3" />
-                                                        {new Date(repo.updated_at).toLocaleDateString()}
-                                                    </span>
-                                                </div>
-                                            </a>
-                                        ))}
+                                                    </div>
+                                                </a>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
 
-                        <div className="flex justify-center mb-4">
+                        {/* Expand Button */}
+                        <div className="flex justify-center mb-10">
                             <button
                                 onClick={toggleExpand}
-                                className="flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                                className="flex items-center gap-2 px-8 py-3 border-2 border-text-main font-bold text-[10px] tracking-[0.3em] uppercase hover:bg-text-main hover:text-primary transition-all"
                             >
-                                <span className="text-sm font-medium">
-                                    {expanded ? "Show Less" : "View Detailed Stats"}
-                                </span>
-                                {expanded ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
+                                <span>{expanded ? "Fold Detailed Index" : "Unfold Detailed Index"}</span>
+                                {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                             </button>
                         </div>
 
+                        {/* Expanded Content */}
                         <AnimatePresence>
                             {expanded && (
                                 <motion.div
@@ -352,61 +326,60 @@ export default function GitHub() {
                                     className="overflow-hidden"
                                 >
                                     {detailsLoading ? (
-                                        <div className="flex justify-center py-12">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-github"></div>
+                                        <div className="flex justify-center py-12 font-serif italic text-xl">
+                                            Retrieving archival data...
                                         </div>
                                     ) : (
-                                        <div className="bg-background/50 rounded-2xl p-6 border border-white/5 space-y-8">
-                                            {/* Top Section: Languages and Contribution Map */}
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        <div className="border border-text-main bg-surface p-6 md:p-10 shadow-[8px_8px_0px_#111] mb-4 space-y-12">
+
+                                            {/* Top Section: Heatmap & Languages */}
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+
                                                 {/* Language Distribution */}
                                                 <div>
-                                                    <div className="flex items-center gap-2 mb-4 text-purple-400">
+                                                    <div className="flex items-center gap-3 mb-6 border-b-2 border-text-main pb-3">
                                                         <Book className="w-5 h-5" />
-                                                        <h3 className="text-lg font-semibold">Languages</h3>
+                                                        <h3 className="text-xs font-black tracking-[0.2em] uppercase">Language Capital</h3>
                                                     </div>
-                                                    <div className="p-4 bg-white/5 rounded-xl">
-                                                        <div className="space-y-3">
-                                                            {getLanguageStats().map((lang) => (
-                                                                <div key={lang.name}>
-                                                                    <div className="flex justify-between text-sm mb-1">
-                                                                        <span className="text-gray-200">{lang.name}</span>
-                                                                        <span className="text-gray-400">{lang.percentage}%</span>
-                                                                    </div>
-                                                                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                                                                        <motion.div
-                                                                            initial={{ width: 0 }}
-                                                                            animate={{ width: `${lang.percentage}%` }}
-                                                                            className="h-full rounded-full"
-                                                                            style={{ backgroundColor: lang.color }}
-                                                                        />
-                                                                    </div>
+                                                    <div className="space-y-6">
+                                                        {getLanguageStats().map((lang) => (
+                                                            <div key={lang.name}>
+                                                                <div className="flex justify-between font-sans text-[10px] font-bold tracking-widest uppercase mb-2">
+                                                                    <span>{lang.name}</span>
+                                                                    <span>{lang.percentage}%</span>
                                                                 </div>
-                                                            ))}
-                                                            {getLanguageStats().length === 0 && (
-                                                                <p className="text-gray-500 text-sm">No language data available.</p>
-                                                            )}
-                                                        </div>
+                                                                <div className="h-4 border border-text-main w-full p-0.5 bg-primary">
+                                                                    <motion.div
+                                                                        initial={{ width: 0 }}
+                                                                        animate={{ width: `${lang.percentage}%` }}
+                                                                        className="h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMCIvPjxsaW5lIHgxPSIwIiB5MT0iNCIgeDI9IjQiIHkyPSIwIiBzdHJva2U9IiMxMTEiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')] bg-repeat"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                        {getLanguageStats().length === 0 && (
+                                                            <p className="font-serif italic text-sm">No linguistic data recorded.</p>
+                                                        )}
                                                     </div>
                                                 </div>
 
-                                                {/* Contribution Heatmap */}
+                                                {/* Heatmap */}
                                                 <div>
-                                                    <div className="flex items-center gap-2 mb-4 text-green-400">
+                                                    <div className="flex items-center gap-3 mb-6 border-b-2 border-text-main pb-3">
                                                         <Calendar className="w-5 h-5" />
-                                                        <h3 className="text-lg font-semibold">Contribution Map</h3>
+                                                        <h3 className="text-xs font-black tracking-[0.2em] uppercase">Volume Matrix</h3>
                                                     </div>
-                                                    <div className="p-4 bg-white/5 rounded-xl overflow-x-auto">
+                                                    <div className="overflow-x-auto border-2 border-text-main p-4 bg-primary shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
                                                         {renderHeatmap()}
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Recent Activity */}
+                                            {/* Recent Activity Ticker */}
                                             <div>
-                                                <div className="flex items-center gap-2 mb-4 text-blue-400">
+                                                <div className="flex items-center gap-3 mb-6 border-b-2 border-text-main pb-3">
                                                     <Clock className="w-5 h-5" />
-                                                    <h3 className="text-lg font-semibold">Recent Contributions</h3>
+                                                    <h3 className="text-xs font-black tracking-[0.2em] uppercase">Recent Transactions</h3>
                                                 </div>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     {events.slice(0, 6).map((event) => (
@@ -415,102 +388,80 @@ export default function GitHub() {
                                                             href={`https://github.com/${event.repo.name}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group border border-white/5 hover:border-blue-500/30"
+                                                            className="flex items-center justify-between p-4 border border-text-main hover:bg-text-main hover:text-primary transition-colors group"
                                                         >
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="px-2 py-1 bg-white/10 rounded text-xs text-gray-300 font-mono">
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-[10px] font-bold uppercase tracking-widest border border-current px-2 py-1">
                                                                     {formatEventType(event.type)}
                                                                 </span>
-                                                                <span className="font-medium text-gray-200 group-hover:text-blue-400 transition-colors truncate max-w-[150px] md:max-w-[200px]">
-                                                                    {event.repo.name}
+                                                                <span className="font-serif font-bold truncate max-w-[120px] md:max-w-[160px]">
+                                                                    {event.repo.name.split('/')[1] || event.repo.name}
                                                                 </span>
                                                             </div>
-                                                            <span className="text-xs text-gray-500 font-mono whitespace-nowrap ml-2">
+                                                            <span className="text-[10px] font-bold tracking-widest uppercase whitespace-nowrap ml-4">
                                                                 {new Date(event.created_at).toLocaleDateString()}
                                                             </span>
                                                         </a>
                                                     ))}
-                                                    {events.length === 0 && (
-                                                        <p className="text-gray-500 text-center py-4 col-span-full">No recent activity found.</p>
-                                                    )}
                                                 </div>
                                             </div>
 
-                                            {/* All Repositories */}
+                                            {/* Full Archive */}
                                             <div>
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <div className="flex items-center gap-2 text-purple-400">
+                                                <div className="flex items-center justify-between border-b-[3px] border-text-main pb-4 mb-6">
+                                                    <div className="flex items-center gap-3">
                                                         <Book className="w-5 h-5" />
-                                                        <h3 className="text-lg font-semibold">All Repositories ({allRepos.length})</h3>
+                                                        <h3 className="text-xs font-black tracking-[0.2em] uppercase">Comprehensive Archive</h3>
                                                     </div>
-                                                    <div className="flex bg-white/5 rounded-lg p-1">
+                                                    <div className="flex items-center gap-2">
                                                         <button
                                                             onClick={() => setSortBy('stars')}
-                                                            className={`px-3 py-1 rounded text-xs font-medium transition-all ${sortBy === 'stars' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                            className={`px-3 py-1 text-[10px] tracking-widest uppercase font-bold border border-text-main ${sortBy === 'stars' ? 'bg-text-main text-primary' : 'hover:bg-text-main hover:text-primary transition-colors'}`}
                                                         >
-                                                            Stars
+                                                            Yield
                                                         </button>
                                                         <button
                                                             onClick={() => setSortBy('updated')}
-                                                            className={`px-3 py-1 rounded text-xs font-medium transition-all ${sortBy === 'updated' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                            className={`px-3 py-1 text-[10px] tracking-widest uppercase font-bold border border-text-main ${sortBy === 'updated' ? 'bg-text-main text-primary' : 'hover:bg-text-main hover:text-primary transition-colors'}`}
                                                         >
-                                                            Updated
+                                                            Date
                                                         </button>
                                                     </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                                                     {getSortedRepos().map((repo) => (
                                                         <a
                                                             key={repo.name}
                                                             href={repo.html_url}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="block p-4 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 hover:border-purple-500/30 transition-all"
+                                                            className="flex flex-col p-5 border border-text-main bg-primary hover:bg-text-main hover:text-primary transition-all h-full"
                                                         >
-                                                            <div className="flex justify-between items-start mb-2">
-                                                                <h4 className="font-bold text-gray-200 truncate pr-2 flex-1">{repo.name}</h4>
-                                                                {repo.language && (
-                                                                    <div
-                                                                        className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
-                                                                        style={{ backgroundColor: getLanguageColor(repo.language) }}
-                                                                        title={repo.language}
-                                                                    />
-                                                                )}
+                                                            <div className="flex justify-between items-start mb-4">
+                                                                <h4 className="font-serif font-bold text-lg leading-tight uppercase truncate flex-1">{repo.name}</h4>
                                                             </div>
-                                                            <p className="text-xs text-gray-400 line-clamp-4 mb-3 min-h-[4rem]">
+                                                            <p className="font-serif text-sm italic mb-6 flex-grow line-clamp-3">
                                                                 {repo.description || "No description provided."}
                                                             </p>
-                                                            <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
-                                                                <div className="flex items-center gap-3">
+                                                            <div className="flex items-center justify-between font-sans text-[10px] font-bold tracking-widest uppercase border-t border-current/30 pt-4">
+                                                                <div className="flex items-center gap-4">
                                                                     <span className="flex items-center gap-1">
-                                                                        <Star className="w-3 h-3" />
+                                                                        <Star className="w-3.5 h-3.5 fill-current" />
                                                                         {repo.stargazers_count}
                                                                     </span>
                                                                     <span className="flex items-center gap-1">
-                                                                        <GitFork className="w-3 h-3" />
+                                                                        <GitFork className="w-3.5 h-3.5" />
                                                                         {repo.forks_count}
                                                                     </span>
                                                                 </div>
-                                                                <span className="text-[10px]">
-                                                                    {new Date(repo.updated_at).toLocaleDateString()}
-                                                                </span>
+                                                                <span>{new Date(repo.updated_at).toLocaleDateString()}</span>
                                                             </div>
-
-                                                            {/* Topics/Tags - Simplified */}
-                                                            {repo.topics && repo.topics.length > 0 && (
-                                                                <div className="flex flex-wrap gap-1 mt-3">
-                                                                    {repo.topics.slice(0, 3).map(topic => (
-                                                                        <span key={topic} className="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-gray-400">
-                                                                            {topic}
-                                                                        </span>
-                                                                    ))}
-                                                                </div>
-                                                            )}
                                                         </a>
                                                     ))}
                                                 </div>
                                             </div>
+
                                         </div>
                                     )}
                                 </motion.div>

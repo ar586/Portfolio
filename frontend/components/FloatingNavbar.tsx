@@ -1,42 +1,64 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Code, Book, Gamepad2, Github } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
-const links = [
-    { name: 'Skills', icon: Code, href: '#skills', color: 'text-blue-400' },
-    { name: 'Hobbies', icon: Book, href: '#hobbies', color: 'text-green-400' },
-    { name: 'LeetCode', icon: Code, href: '#leetcode', color: 'text-yellow-400' },
-    { name: 'GitHub', icon: Github, href: '#github', color: 'text-purple-400' },
+const navLinks = [
+    { name: 'Front Page', href: '#home' },
+    { name: 'Classifieds', href: '#skills' },
+    { name: 'Features', href: '#projects' },
+    { name: 'Arts & Leisure', href: '#hobbies' },
+    { name: 'Markets', href: '#github' },
+    { name: 'Puzzles', href: '#leetcode' },
 ];
 
 export default function FloatingNavbar() {
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setScrolled(true);
+            } else {
+                setScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
-        <motion.div
+        <motion.nav
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 md:translate-x-0 md:bottom-auto md:top-6 md:left-auto md:right-6 z-50 fixed-navbar-container"
+            transition={{ duration: 0.5 }}
+            className={`sticky top-0 w-full z-50 transition-all duration-300 font-sans border-b-4 border-text-main bg-primary ${scrolled ? 'shadow-[0_4px_0px_#111] py-2' : 'py-4'
+                }`}
         >
-            <div className="flex items-center gap-2 p-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full shadow-2xl">
-                {links.map((link) => (
-                    <Link key={link.name} href={link.href}>
-                        <motion.div
-                            whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.1)' }}
-                            whileTap={{ scale: 0.95 }}
-                            className="p-3 rounded-full relative group cursor-pointer"
-                        >
-                            <link.icon className={`w-5 h-5 ${link.color}`} />
+            <div className="container max-w-6xl mx-auto px-4 md:px-8">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
 
-                            {/* Tooltip - positioned below the icon */}
-                            <span className="absolute top-[130%] left-1/2 -translate-x-1/2 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    {/* Brand / Logo */}
+                    <div className="hidden md:block font-serif font-black text-2xl tracking-tighter uppercase whitespace-nowrap">
+                        The Post
+                    </div>
+
+                    {/* Links */}
+                    <div className="flex flex-wrap justify-center gap-x-1 md:gap-x-2 gap-y-2 text-[10px] md:text-xs font-bold tracking-[0.1em] md:tracking-[0.2em] uppercase">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                href={link.href}
+                                className="hover:bg-text-main hover:text-primary px-2 py-1 transition-colors border border-transparent hover:border-text-main"
+                            >
                                 {link.name}
-                            </span>
-                        </motion.div>
-                    </Link>
-                ))}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
             </div>
-        </motion.div>
+        </motion.nav>
     );
 }

@@ -1,146 +1,70 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Code, Book, Guitar, Utensils } from 'lucide-react';
-import Image from 'next/image';
 
 const hobbies = [
     {
-        name: 'Coding',
-        shortDescription: 'Building projects and solving problems',
-        longDescription: "As someone who didnt have opportunity to use a computer till i cracked jee, it took me a bit of time to get the hang of it but i think i am in the right motion now.",
-        icon: Code,
-        color: 'from-blue-500 to-cyan-500',
-        image: '/hobby-coding.jpg' // Placeholder
+        name: 'Algorithms', // Renamed slightly to fit newspaper tone better
+        shortDescription: 'The Architecture of Logic',
+        longDescription: "As someone who didn't have the opportunity to use a computer until I cracked JEE, it took me a bit of time to get the hang of it, but I think I am in the right motion now. Logic and structure have become second nature, turning coding from a necessity into a profound passion for building and solving.",
+        icon: Code
     },
     {
-        name: 'Reading',
-        shortDescription: 'Horror,Thriller,Sci-Fi',
-        longDescription: "Starting from Champak, Magic Pot to Kite Runner and 1984, reading has been a generous teacher and supporter of mine. Khaled Hosseini and Stephen King are some of my favourite authors.",
-        icon: Book,
-        color: 'from-green-500 to-emerald-500',
-        image: '/hobby-reading.jpg?v=2'
+        name: 'Literature',
+        shortDescription: 'Fiction & Historical Accounts',
+        longDescription: "Starting from Champak and Magic Pot to The Kite Runner and 1984, reading has been a generous teacher and supporter of mine. Khaled Hosseini and Stephen King remain pivotal figures informing my worldview and serving as an endless reservoir of inspiration and empathy.",
+        icon: Book
     },
     {
-        name: 'Guitar Playing',
-        shortDescription: 'Strumming chords and trying to sound like kk',
-        longDescription: "After frustating days at college i find solace in strings. The calming effect guitar has had on me has been worth all the pain it has caused to my fingers.",
-        icon: Guitar,
-        color: 'from-purple-500 to-pink-500',
-        image: '/hobby-guitar.jpg'
+        name: 'Acoustics',
+        shortDescription: 'Six Strings & Melodies',
+        longDescription: "After frustrating days of rigorous academic pursuit, I find profound solace in strings. The calming effect the acoustic guitar has had on me has been well worth all the pain it initially caused to my uncalloused fingers, transforming noise into harmony.",
+        icon: Guitar
     },
     {
-        name: 'Cooking',
-        shortDescription: 'Experimenting with new recipes',
-        longDescription: "This one was very surprising to me as well. I never thought i would enjoy cooking this much. But covid cutting of market and me being a foodie led it being my favourite activity.",
-        icon: Utensils,
-        color: 'from-yellow-500 to-orange-500',
-        image: '/hobby-cooking.jpg'
+        name: 'Culinary Arts',
+        shortDescription: 'Gastronomic Experiments',
+        longDescription: "This pursuit proved deeply surprising. I never anticipated enjoying the culinary arts this much, but the pandemic restricting market access, combined with a profound appreciation for good food, led it to become one of my most favored daily rituals.",
+        icon: Utensils
     }
 ];
 
 export default function Hobbies() {
-    const [hoveredHobby, setHoveredHobby] = useState<number | null>(null);
-
     return (
-        <section id="hobbies" className="min-h-screen py-12 md:py-20">
-            <div className="container mx-auto px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-16"
-                >
-                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                        Hobbies & Interests
+        <section id="hobbies" className="py-12 md:py-20 border-b-4 border-text-main bg-primary text-text-main">
+            <div className="container max-w-6xl mx-auto px-4 md:px-8">
+                {/* Section Header */}
+                <div className="flex flex-col items-center mb-12 border-b-2 border-text-main pb-4">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black font-serif uppercase tracking-tight text-center">
+                        Arts & Leisure
                     </h2>
-                    <p className="text-gray-400 text-lg">
-                        What I enjoy doing in my free time
+                    <p className="mt-2 text-[10px] md:text-xs tracking-[0.3em] font-sans font-bold uppercase text-center border-t border-text-main pt-2 inline-block px-8">
+                        Personal Pursuits & Diversions
                     </p>
-                </motion.div>
+                </div>
 
-                <div className="flex flex-col lg:flex-row gap-4 h-[850px] lg:h-[400px]">
+                {/* Newspaper Columns */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
                     {hobbies.map((hobby, index) => (
-                        <motion.div
-                            key={hobby.name}
-                            layout
-                            onHoverStart={() => setHoveredHobby(index)}
-                            onHoverEnd={() => setHoveredHobby(null)}
-                            onClick={() => setHoveredHobby(hoveredHobby === index ? null : index)}
-                            className={`relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-out border border-surface hover:border-primary/50
-                                ${hoveredHobby === index ? 'flex-[2]' : 'flex-1'}
-                            `}
-                        >
-                            {/* Background Image (visible on hover or always? User said "expands ... with an image". Let's show image only on hover to be dramatic, or dim it normally) */}
-                            {/* Let's have a background gradient normally, and fade in image on hover */}
-                            <div className={`absolute inset-0 bg-gradient-to-br ${hobby.color} opacity-10`} />
+                        <article key={hobby.name} className={`flex flex-col ${index !== hobbies.length - 1 ? 'border-b-2 lg:border-b-0 lg:border-r-2 border-text-main pb-8 lg:pb-0 lg:pr-8' : ''} ${index !== 0 ? 'lg:pl-8' : ''}`}>
 
-                            {/* Detailed Image Background on Hover */}
-                            <motion.div
-                                className="absolute inset-0 z-0 bg-cover bg-center"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: hoveredHobby === index ? 1 : 0 }}
-                                transition={{ duration: 0.5 }}
-                            >
-                                {/* We use a div with bg image or Next Image component */}
-                                {/* Using a dark overlay on top of image for text readability */}
-                                {hoveredHobby === index && (
-                                    <>
-                                        {/* Note: User needs to provide images. If missing, it will be blank/color. */}
-                                        <img
-                                            src={hobby.image}
-                                            alt={hobby.name}
-                                            className="absolute inset-0 w-full h-full object-cover"
-                                            onError={(e) => {
-                                                // Fallback if image fails - keeping the color gradient
-                                                e.currentTarget.style.display = 'none';
-                                            }}
-                                        />
-                                        <div className="absolute inset-0 bg-black/70" />
-                                    </>
-                                )}
-                            </motion.div>
-
-                            <div className="relative z-10 h-full">
-                                {/* Centered Icon & Title */}
-                                <div className={`absolute inset-0 flex flex-col ${hoveredHobby === index ? 'justify-start pt-6 md:pt-16' : 'justify-center'} items-center pointer-events-none p-6 transition-all duration-500 ease-out`}>
-                                    <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${hobby.color} flex items-center justify-center mb-4 shadow-lg`}>
-                                        <hobby.icon className="w-7 h-7 text-white" />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-white shadow-black/50 drop-shadow-md">
-                                        {hobby.name}
-                                    </h3>
-                                </div>
-
-                                {/* Bottom Text */}
-                                <div className="absolute bottom-6 left-6 right-6 text-center pointer-events-none">
-                                    <AnimatePresence mode="wait">
-                                        {hoveredHobby === index ? (
-                                            <motion.p
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: 10 }}
-                                                className="text-gray-100 text-sm md:text-base font-medium drop-shadow-md"
-                                            >
-                                                {hobby.longDescription}
-                                            </motion.p>
-                                        ) : (
-                                            <motion.p
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                exit={{ opacity: 0 }}
-                                                transition={{ delay: 0.1 }}
-                                                className="text-gray-300 text-sm font-medium drop-shadow-md"
-                                            >
-                                                {hobby.shortDescription}
-                                            </motion.p>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
+                            <div className="flex items-center gap-3 mb-4">
+                                <hobby.icon className="w-8 h-8 border-[1.5px] border-text-main p-1.5 shadow-[2px_2px_0px_#111] bg-surface flex-shrink-0" />
+                                <h3 className="font-serif font-black text-2xl uppercase leading-[1.1]">
+                                    {hobby.name}
+                                </h3>
                             </div>
-                        </motion.div>
+
+                            <h4 className="font-serif italic text-sm mb-4 border-y border-text-main py-2 bg-surface/30 px-2 text-center">
+                                {hobby.shortDescription}
+                            </h4>
+
+                            <div className="font-serif text-justify text-sm leading-relaxed">
+                                <span className="drop-cap">{hobby.longDescription.charAt(0)}</span>
+                                {hobby.longDescription.slice(1)}
+                            </div>
+
+                        </article>
                     ))}
                 </div>
             </div>

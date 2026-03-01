@@ -1,67 +1,85 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import {
     SiPython, SiJavascript, SiTypescript, SiReact, SiNextdotjs,
     SiNodedotjs, SiPytorch, SiTensorflow, SiMongodb, SiPostgresql,
     SiDocker, SiGit, SiFastapi, SiTailwindcss
 } from 'react-icons/si';
 
-const skills = [
-    { name: 'Python', icon: SiPython, color: '#3776AB' },
-    { name: 'JavaScript', icon: SiJavascript, color: '#F7DF1E' },
-    { name: 'TypeScript', icon: SiTypescript, color: '#3178C6' },
-    { name: 'React', icon: SiReact, color: '#61DAFB' },
-    { name: 'Next.js', icon: SiNextdotjs, color: '#FFFFFF' },
-    { name: 'Node.js', icon: SiNodedotjs, color: '#339933' },
-    { name: 'PyTorch', icon: SiPytorch, color: '#EE4C2C' },
-    { name: 'TensorFlow', icon: SiTensorflow, color: '#FF6F00' },
-    { name: 'MongoDB', icon: SiMongodb, color: '#47A248' },
-    { name: 'PostgreSQL', icon: SiPostgresql, color: '#4169E1' },
-    { name: 'Docker', icon: SiDocker, color: '#2496ED' },
-    { name: 'Git', icon: SiGit, color: '#F05032' },
-    { name: 'FastAPI', icon: SiFastapi, color: '#009688' },
-    { name: 'Tailwind CSS', icon: SiTailwindcss, color: '#06B6D4' },
+const skillsData = [
+    {
+        category: "Programming Languages",
+        items: [
+            { name: 'Python', icon: SiPython },
+            { name: 'JavaScript', icon: SiJavascript },
+            { name: 'TypeScript', icon: SiTypescript },
+        ]
+    },
+    {
+        category: "Frameworks & Libraries",
+        items: [
+            { name: 'React', icon: SiReact },
+            { name: 'Next.js', icon: SiNextdotjs },
+            { name: 'Node.js', icon: SiNodedotjs },
+            { name: 'FastAPI', icon: SiFastapi },
+            { name: 'Tailwind CSS', icon: SiTailwindcss },
+        ]
+    },
+    {
+        category: "AI & Machine Learning",
+        items: [
+            { name: 'PyTorch', icon: SiPytorch },
+            { name: 'TensorFlow', icon: SiTensorflow },
+        ]
+    },
+    {
+        category: "Databases & Systems",
+        items: [
+            { name: 'MongoDB', icon: SiMongodb },
+            { name: 'PostgreSQL', icon: SiPostgresql },
+        ]
+    },
+    {
+        category: "DevOps & Tools",
+        items: [
+            { name: 'Docker', icon: SiDocker },
+            { name: 'Git', icon: SiGit },
+        ]
+    }
 ];
 
 export default function Skills() {
     return (
-        <section id="skills" className="min-h-screen py-12 md:py-20">
-            <div className="container mx-auto px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-16"
-                >
-                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                        Skills & Technologies
+        <section id="skills" className="py-12 md:py-16 border-b-[3px] border-text-main bg-primary text-text-main">
+            <div className="container max-w-6xl mx-auto px-4 md:px-8">
+                <div className="flex flex-col items-center mb-10 border-double-black pb-4 border-b-4">
+                    <h2 className="text-4xl md:text-5xl font-black font-serif uppercase tracking-tight text-center">
+                        Technical Classifieds
                     </h2>
-                    <p className="text-gray-400 text-lg">
-                        Tools and technologies I work with
+                    <p className="mt-2 text-[10px] md:text-xs tracking-[0.3em] font-sans font-bold uppercase text-center border-t border-text-main pt-2 inline-block">
+                        Verified Proficiencies & Instruments
                     </p>
-                </motion.div>
+                </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6">
-                    {skills.map((skill, index) => (
-                        <motion.div
-                            key={skill.name}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.4, delay: index * 0.05 }}
-                            whileHover={{ scale: 1.1, y: -5 }}
-                            className="bg-white/5 p-6 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-all cursor-pointer group"
-                        >
-                            <skill.icon
-                                className="w-12 h-12 transition-colors"
-                                style={{ color: skill.color }}
-                            />
-                            <span className="text-white text-sm font-medium text-center">
-                                {skill.name}
-                            </span>
-                        </motion.div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                    {skillsData.map((category) => (
+                        <div key={category.category} className="border-2 border-text-main h-full flex flex-col bg-surface shadow-[4px_4px_0px_#111] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#111] transition-all duration-200">
+                            <div className="bg-text-main text-primary p-2 border-b-2 border-text-main flex items-center justify-center min-h-[3rem]">
+                                <h3 className="font-serif font-bold text-sm md:text-base leading-tight uppercase text-center">
+                                    {category.category}
+                                </h3>
+                            </div>
+                            <div className="p-4 flex-grow bg-primary">
+                                <ul className="space-y-4 font-sans">
+                                    {category.items.map((skill) => (
+                                        <li key={skill.name} className="flex items-center gap-3 border-b border-text-main/20 pb-3 last:border-0 last:pb-0 group cursor-crosshair">
+                                            <skill.icon className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                                            <span className="text-xs font-bold uppercase tracking-widest leading-none">{skill.name}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
                     ))}
                 </div>
             </div>
