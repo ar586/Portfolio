@@ -207,37 +207,43 @@ export default function ChatInterface() {
                 {/* Background watermark/texture */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMCIvPjxsaW5lIHgxPSIwIiB5MT0iNCIgeDI9IjQiIHkyPSIwIiBzdHJva2U9IiMxMTEiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')] bg-repeat z-0"></div>
 
-                {messages.map((message) => (
-                    <motion.div
-                        key={message.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`flex relative z-10 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                        <div className={`flex items-start gap-4 max-w-[85%] md:max-w-[75%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                {messages.map((message) => {
+                    if (message.role === 'assistant' && !message.content) {
+                        return null;
+                    }
 
-                            {/* Avatar */}
-                            <div className={`w-8 h-8 flex items-center justify-center shrink-0 border-2 border-text-main shadow-[2px_2px_0px_#000] bg-surface`}>
-                                {message.role === 'user' ? <User className="w-5 h-5 text-text-main" /> : <Bot className="w-5 h-5 text-text-main" />}
-                            </div>
+                    return (
+                        <motion.div
+                            key={message.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`flex relative z-10 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
+                            <div className={`flex items-start gap-4 max-w-[85%] md:max-w-[75%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
 
-                            {/* Message Bubble */}
-                            <div className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}>
-                                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent mb-1 px-1 min-h-[16px]">
-                                    {message.role === 'user' ? 'Sender' : 'Operator'} {isMounted ? `— ${message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
+                                {/* Avatar */}
+                                <div className={`w-8 h-8 flex items-center justify-center shrink-0 border-2 border-text-main shadow-[2px_2px_0px_#000] bg-surface`}>
+                                    {message.role === 'user' ? <User className="w-5 h-5 text-text-main" /> : <Bot className="w-5 h-5 text-text-main" />}
                                 </div>
-                                <div className={`p-4 border-2 border-text-main font-serif text-sm md:text-base leading-relaxed ${message.role === 'user'
-                                    ? 'bg-text-main text-primary rounded-bl-xl rounded-tl-xl rounded-tr-sm shadow-[4px_4px_0px_#888]'
-                                    : 'bg-surface text-text-main rounded-br-xl rounded-tr-xl rounded-tl-sm shadow-[4px_4px_0px_#000]'
-                                    }`}>
-                                    <p className="whitespace-pre-wrap">{message.content}</p>
+
+                                {/* Message Bubble */}
+                                <div className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}>
+                                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent mb-1 px-1 min-h-[16px]">
+                                        {message.role === 'user' ? 'Sender' : 'Operator'} {isMounted ? `— ${message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
+                                    </div>
+                                    <div className={`p-4 border-2 border-text-main font-serif text-sm md:text-base leading-relaxed ${message.role === 'user'
+                                        ? 'bg-text-main text-primary rounded-bl-xl rounded-tl-xl rounded-tr-sm shadow-[4px_4px_0px_#888]'
+                                        : 'bg-surface text-text-main rounded-br-xl rounded-tr-xl rounded-tl-sm shadow-[4px_4px_0px_#000]'
+                                        }`}>
+                                        <p className="whitespace-pre-wrap">{message.content}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </motion.div>
-                ))}
+                        </motion.div>
+                    );
+                })}
 
-                {isLoading && (
+                {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && !messages[messages.length - 1].content && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}

@@ -18,6 +18,7 @@ interface Project {
 export default function Projects() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
+    const [tappedProject, setTappedProject] = useState<string | null>(null);
 
     useEffect(() => {
         setProjects([
@@ -85,12 +86,15 @@ export default function Projects() {
                                 {/* Image Placeholder / Treatment */}
                                 <div className={`relative border-4 border-text-main p-1.5 shadow-[6px_6px_0px_#000] mb-6 bg-surface ${index === 0 ? 'lg:col-span-8' : ''}`}>
                                     {project.image_urls && project.image_urls.length >= 3 ? (
-                                        <div className="flex flex-col gap-1.5 relative group h-auto md:h-[40rem]">
+                                        <div
+                                            className="flex flex-col gap-1.5 relative group h-auto md:h-[40rem] cursor-pointer"
+                                            onClick={() => setTappedProject(tappedProject === project.project_id ? null : project.project_id)}
+                                        >
                                             <div className="overflow-hidden relative h-64 md:h-[65%] border-2 border-text-main w-full">
                                                 <img
                                                     src={project.image_urls[0]}
                                                     alt={`${project.title} image 1`}
-                                                    className="w-full h-full object-cover grayscale contrast-125 mix-blend-multiply group-hover:grayscale-0 group-hover:mix-blend-normal transition-all duration-700 object-top"
+                                                    className={`w-full h-full object-cover transition-all duration-700 object-top ${tappedProject === project.project_id ? 'grayscale-0 mix-blend-normal' : 'grayscale contrast-125 mix-blend-multiply group-hover:grayscale-0 group-hover:mix-blend-normal'}`}
                                                 />
                                             </div>
                                             <div className="flex gap-1.5 h-40 md:h-[35%] w-full">
@@ -98,31 +102,34 @@ export default function Projects() {
                                                     <img
                                                         src={project.image_urls[1]}
                                                         alt={`${project.title} image 2`}
-                                                        className="w-full h-full object-cover grayscale contrast-125 mix-blend-multiply group-hover:grayscale-0 group-hover:mix-blend-normal transition-all duration-700 object-top"
+                                                        className={`w-full h-full object-cover transition-all duration-700 object-top ${tappedProject === project.project_id ? 'grayscale-0 mix-blend-normal' : 'grayscale contrast-125 mix-blend-multiply group-hover:grayscale-0 group-hover:mix-blend-normal'}`}
                                                     />
                                                 </div>
                                                 <div className="overflow-hidden relative border-2 border-text-main flex-1">
                                                     <img
                                                         src={project.image_urls[2]}
                                                         alt={`${project.title} image 3`}
-                                                        className="w-full h-full object-cover grayscale contrast-125 mix-blend-multiply group-hover:grayscale-0 group-hover:mix-blend-normal transition-all duration-700 object-top"
+                                                        className={`w-full h-full object-cover transition-all duration-700 object-top ${tappedProject === project.project_id ? 'grayscale-0 mix-blend-normal' : 'grayscale contrast-125 mix-blend-multiply group-hover:grayscale-0 group-hover:mix-blend-normal'}`}
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAiLz4KPGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjAuNSIgZmlsbD0iIzExMSIgZmlsbC1vcGFjaXR5PSIwLjE1Ii8+Cjwvc3ZnPg==')] opacity-50 mix-blend-overlay pointer-events-none group-hover:opacity-0 transition-opacity duration-700"></div>
+                                            <div className={`absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAiLz4KPGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjAuNSIgZmlsbD0iIzExMSIgZmlsbC1vcGFjaXR5PSIwLjE1Ii8+Cjwvc3ZnPg==')] mix-blend-overlay pointer-events-none transition-opacity duration-700 ${tappedProject === project.project_id ? 'opacity-0' : 'opacity-50 group-hover:opacity-0'}`}></div>
                                         </div>
                                     ) : project.image_url ? (
-                                        <div className="overflow-hidden relative group border-2 border-text-main">
+                                        <div
+                                            className="overflow-hidden relative group border-2 border-text-main cursor-pointer"
+                                            onClick={() => setTappedProject(tappedProject === project.project_id ? null : project.project_id)}
+                                        >
                                             <img
                                                 src={project.image_url}
                                                 alt={project.title}
-                                                className={`w-full object-cover grayscale contrast-125 mix-blend-multiply group-hover:grayscale-0 group-hover:mix-blend-normal transition-all duration-700 ${index === 0 ? 'h-64 md:h-[26rem]' : 'h-48'}`}
+                                                className={`w-full object-cover transition-all duration-700 ${index === 0 ? 'h-64 md:h-[26rem]' : 'h-48'} ${tappedProject === project.project_id ? 'grayscale-0 mix-blend-normal' : 'grayscale contrast-125 mix-blend-multiply group-hover:grayscale-0 group-hover:mix-blend-normal'}`}
                                                 onError={(e) => {
                                                     e.currentTarget.style.display = 'none';
                                                 }}
                                             />
                                             {/* Halftone/Print overlay effect */}
-                                            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAiLz4KPGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjAuNSIgZmlsbD0iIzExMSIgZmlsbC1vcGFjaXR5PSIwLjE1Ii8+Cjwvc3ZnPg==')] opacity-50 mix-blend-overlay pointer-events-none group-hover:opacity-0 transition-opacity duration-700"></div>
+                                            <div className={`absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAiLz4KPGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjAuNSIgZmlsbD0iIzExMSIgZmlsbC1vcGFjaXR5PSIwLjE1Ii8+Cjwvc3ZnPg==')] mix-blend-overlay pointer-events-none transition-opacity duration-700 ${tappedProject === project.project_id ? 'opacity-0' : 'opacity-50 group-hover:opacity-0'}`}></div>
                                         </div>
                                     ) : (
                                         <div className={`w-full bg-primary border-2 border-text-main flex flex-col items-center justify-center font-serif italic text-accent ${index === 0 ? 'h-64 md:h-[26rem]' : 'h-48'}`}>
