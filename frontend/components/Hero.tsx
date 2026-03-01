@@ -1,8 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { Github, Linkedin, Mail, ArrowRight, Terminal } from 'lucide-react';
 
 export default function Hero() {
+    const [isImageActive, setIsImageActive] = useState(false);
+
     const today = new Date().toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
@@ -30,13 +33,20 @@ export default function Hero() {
 
                     {/* Left Column: Image and quick stats */}
                     <div className="lg:col-span-4 flex flex-col items-center lg:items-start border-b-2 lg:border-b-0 lg:border-r-2 border-text-main pb-8 lg:pb-0 lg:pr-8">
-                        <div className="w-full relative border-2 border-text-main p-1.5 mb-6 bg-surface shadow-[4px_4px_0px_#000] group cursor-crosshair">
+                        <div
+                            className="w-full relative border-2 border-text-main p-1.5 mb-6 bg-surface shadow-[4px_4px_0px_#000] group cursor-crosshair"
+                            onClick={() => setIsImageActive(!isImageActive)}
+                        >
                             <img
                                 src="/me.jpg"
                                 alt="Aryan Anand"
-                                className="w-full h-auto aspect-[4/5] object-cover grayscale contrast-125 filter group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700"
+                                className={`w-full h-auto aspect-[4/5] object-cover filter transition-all duration-700 ${isImageActive ? 'grayscale-0 contrast-100' : 'grayscale contrast-125 group-hover:grayscale-0 group-hover:contrast-100'
+                                    }`}
                             />
-                            <div className="absolute bottom-2 right-2 bg-text-main text-primary px-3 py-1 text-[10px] uppercase font-bold tracking-widest group-hover:bg-primary group-hover:text-text-main group-hover:border-2 group-hover:border-text-main transition-all">
+                            <div className={`absolute bottom-2 right-2 px-3 py-1 text-[10px] uppercase font-bold tracking-widest transition-all ${isImageActive
+                                    ? 'bg-primary text-text-main border-2 border-text-main'
+                                    : 'bg-text-main text-primary group-hover:bg-primary group-hover:text-text-main group-hover:border-2 group-hover:border-text-main'
+                                }`}>
                                 Exclusive Profile
                             </div>
                         </div>
