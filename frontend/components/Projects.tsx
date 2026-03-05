@@ -32,6 +32,15 @@ export default function Projects() {
                 featured: true
             },
             {
+                project_id: 'resulthub',
+                title: 'ResultHub NSUT: The Complete Result Directory',
+                description: "NSUT's very own result platform. Search, analyze, and compare academic results across all batches and branches. Features a student leaderboard, analytics dashboard, subject difficulty insights, head-to-head Battle mode, and an AI-powered wrapper — all in one place.",
+                image_url: '/resulthub.png',
+                deployed_link: 'https://www.resulthubnsut.com',
+                tech_stack: ['Next.js', 'Tailwind CSS', 'Express', 'Llama'],
+                featured: true
+            },
+            {
                 project_id: 'dastabbej',
                 title: 'Dastabbej: Simplifying Institutional Complexity',
                 description: 'Tired of long, confusing college notices? Meet Dastabbej, a platform that turns complex, irrelevant notices into simple, clear explanations that students can actually comprehend and act upon efficiently.',
