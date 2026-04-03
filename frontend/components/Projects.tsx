@@ -23,21 +23,21 @@ export default function Projects() {
     useEffect(() => {
         setProjects([
             {
-                project_id: 'calendrify',
-                title: 'Calendrify: Academic Schedule Synchronizer',
-                description: 'An advanced academic web calendar that seamlessly synchronizes classes, exams, and holidays directly with Google Calendar. Features a responsive dashboard, Google OAuth integration, and master synchronization to keep students perfectly organized.',
-                image_url: '/calendrify.jpg',
-                deployed_link: 'https://calendrify.devaryan.tech',
-                tech_stack: ['React', 'Node.js', 'Google Calendar API', 'Tailwind CSS'],
-                featured: true
-            },
-            {
                 project_id: 'sahayak',
                 title: 'Sahayak: Master Your Academic Pursuit',
                 description: 'Presenting Sahayak, your one-stop solution for subject-related guidance. We provide unit-wise breakdowns for subjects where we’ve performed well (at least an 8 pointer), curated PYQs, and the best possible resources so you can save time and focus on what actually matters.',
                 image_urls: ['/sahayak.jpg', '/sahayak-2.jpg', '/sahayak-3.jpg'],
                 deployed_link: 'https://sahayak.devaryan.tech',
                 tech_stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'FastAPI', 'Python', 'JWT', 'Bcrypt'],
+                featured: true
+            },
+            {
+                project_id: 'calendrify',
+                title: 'Calendrify: Academic Schedule Synchronizer',
+                description: 'An advanced academic web calendar that seamlessly synchronizes classes, exams, and holidays directly with Google Calendar. Features a responsive dashboard, Google OAuth integration, and master synchronization to keep students perfectly organized.',
+                image_url: '/calendrify.jpg',
+                deployed_link: 'https://calendrify.devaryan.tech',
+                tech_stack: ['React', 'Node.js', 'Google Calendar API', 'Tailwind CSS'],
                 featured: true
             },
             {
