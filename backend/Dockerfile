@@ -18,9 +18,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
-# Make port 2509 available to the world outside this container
-EXPOSE 2509
+# Make port 10000 available to the world outside this container
+EXPOSE 10000
 
 # Run app.main:app when the container launches
 # Host 0.0.0.0 is required for Docker containers
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "2509"]
+# We use the PORT environment variable provided by Render
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
