@@ -55,7 +55,7 @@ async def chat_endpoint(request: ChatRequest):
         portfolio_context = get_all_portfolio_data()
         
         # 2. Setup LLM
-        llm = ChatGoogleGenerativeAI(model="models/gemma-3-27b-it", temperature=0.7)
+        llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7)
         
         # 3. Handle Chat History
         db = get_database()
