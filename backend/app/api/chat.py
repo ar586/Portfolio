@@ -55,7 +55,7 @@ async def chat_endpoint(request: ChatRequest):
         portfolio_context = get_all_portfolio_data()
         
         # 2. Setup LLM
-        llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7)
+        llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", temperature=0.7)
         
         # 3. Handle Chat History
         db = get_database()
@@ -99,24 +99,28 @@ Maintain a professional, conversational, and helpful tone.
         async def stream_generator():
             full_response = ""
             
-            # Send session_id first as a metadata chunk
-            yield json.dumps({"session_id": session_id}) + "\n"
-            
-            # Form stream generator
-            async for chunk in chain.astream({
-                "context": portfolio_context,
-                "chat_history": chat_history_str,
-                "input": request.message
-            }):
-                full_response += chunk
-                yield json.dumps({"text": chunk}) + "\n"
-            
-            # Save history after streaming is complete
-            if session_id:
-                try:
-                    await save_chat_message(db, session_id, request.message, full_response)
-                except Exception as e:
-                    print(f"Error saving chat history: {e}")
+            try:
+                # Send session_id first as a metadata chunk
+                yield json.dumps({"session_id": session_id}) + "\n"
+                
+                # Form stream generator
+                async for chunk in chain.astream({
+                    "context": portfolio_context,
+                    "chat_history": chat_history_str,
+                    "input": request.message
+                }):
+                    full_response += chunk
+                    yield json.dumps({"text": chunk}) + "\n"
+                
+                # Save history after streaming is complete
+                if session_id:
+                    try:
+                        await save_chat_message(db, session_id, request.message, full_response)
+                    except Exception as e:
+                        print(f"Error saving chat history: {e}")
+            except Exception as e:
+                print(f"Error during streaming: {str(e)}")
+                yield json.dumps({"error": "Transmission interrupted. The telegraph line appears to be disconnected."}) + "\n"
 
         return StreamingResponse(stream_generator(), media_type="application/x-ndjson")
         
