@@ -100,7 +100,10 @@ def build_index():
     client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
     
     print("Recreating collection 'portfolio_docs' on Qdrant Cloud...")
-    client.recreate_collection(
+    if client.collection_exists("portfolio_docs"):
+        client.delete_collection("portfolio_docs")
+        
+    client.create_collection(
         collection_name="portfolio_docs",
         vectors_config=models.VectorParams(size=3072, distance=models.Distance.COSINE)
     )

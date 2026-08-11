@@ -38,7 +38,7 @@ export default function Hero() {
                             onClick={() => setIsImageActive(!isImageActive)}
                         >
                             <img
-                                src="/me.jpg"
+                                src="/me.jpg?v=2"
                                 alt="Aryan Anand"
                                 className={`w-full h-auto aspect-[4/5] object-cover filter transition-all duration-700 ${isImageActive ? 'grayscale-0 contrast-100' : 'grayscale contrast-125 group-hover:grayscale-0 group-hover:contrast-100'
                                     }`}
